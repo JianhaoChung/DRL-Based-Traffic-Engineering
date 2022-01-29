@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-from re import S
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -33,8 +32,8 @@ class Topology(object):
             i, s, d, w, c = link
             self.link_idx_to_sd[int(i)] = (int(s), int(d))
             self.link_sd_to_idx[(int(s), int(d))] = int(i)
-            self.link_capacities[int(i)] = float(c)
             self.link_weights[int(i)] = int(w)
+            self.link_capacities[int(i)] = float(c)
             self.DG.add_weighted_edges_from([(int(s), int(d), int(w))])
 
         assert len(self.DG.nodes()) == self.num_nodes and len(self.DG.edges()) == self.num_links

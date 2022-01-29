@@ -1,3 +1,67 @@
+# CFR-RO-TE: Traffic Engineering with Reinforcement Learning in SDN
+
+# Supplement
+
+
+### Schemes
+
+- Scheme 1: Select critical flows from partial OD flows whose shortest path include centralized links
+  - Scheme 1.0: 
+    
+    trained model were saved at "tf_ckpts/*alpha" folder
+    and training logs were saved at "tf_ckpts/*alpha"  folder
+
+    ```python
+    # game.py:generate_input
+
+      if config.partial_tm_zeroing == True:
+         for z in self.zero_position:
+             i, j = z
+             self.normalized_traffic_matrices[tm_idx,i,j,h] = 0
+  - Scheme 1.1: 
+    
+    trained model were saved at "tf_ckpts/*alpha+" folder
+    and training logs were saved at "tf_ckpts/*alpha+" folder
+    
+    ```python
+    # train.agent
+    
+     for a in actions:
+         if a not in action_space:
+             a_batch.append(0)
+         else:
+             a_batch.append(a)
+  
+- Scheme 2: Select critical flows from the intersection between cf_potetial and OD flows whose shortest path include centralized links,
+        cf_potetial include top K flows calculated by link_load/link_capacity, which k equals to the amount of centralized OD flows
+  - Scheme 2.1: 
+    
+      trained model were saved at "tf_ckpts/*beta" folder
+      and training logs were saved at "tf_ckpts/*beta" folder
+    
+      ```python
+       #train.agent
+
+       cf = game.get_critical_topK_flows_beta(config, tm_idx, action_space, critical_links=10)
+       for a in actions:
+           if a not in cf:
+               a_batch.append(0)
+           else:
+               a_batch.append(a)
+### Variable 
+
+- "cf_influence":critical flows are defined by the result of intersection between the shortest path of OD flows and 'critical_link_indexes',
+that is, if the result of intersection is larger than 'cf_infuence', it means that one OD flow and critical_link_indexes 
+should share at least "cf_infuence+1" links that 
+that OD flow can be defined as critical flow. 
+
+
+    
+
+
+
+
+
 # CFR-RL: Traffic Engineering with Reinforcement Learning in SDN
 
 This is a Tensorflow implementation of CFR-RL as described in our paper:

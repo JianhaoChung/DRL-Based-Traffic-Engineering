@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import warnings
+warnings.filterwarnings("ignore")
 import numpy as np
 from tqdm import tqdm
 import multiprocessing as mp
@@ -11,14 +13,16 @@ from env import Environment
 from game import CFRRL_Game
 from model import Network
 from config import get_config
+from utils import utility
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_agents', 20, 'number of agents')
 flags.DEFINE_string('baseline', 'avg', 'avg: use average reward as baseline, best: best reward as baseline')
 flags.DEFINE_integer('num_iter', 10, 'Number of iterations each agent would run')
 
-# GRADIENTS_CHECK = False
-GRADIENTS_CHECK = True
+GRADIENTS_CHECK = False
+# GRADIENTS_CHECK = True
+
 
 
 def central_agent(config, game, model_weights_queues, experience_queues):
@@ -127,7 +131,7 @@ def central_agent(config, game, model_weights_queues, experience_queues):
                     learning_rate, avg_reward, avg_advantage, avg_entropy))
 
 
-def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_queue):
+def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_queue, action_space=None):
     random_state = np.random.RandomState(seed=agent_id)
     network = Network(config, game.state_dims, game.action_dim, game.max_moves, master=False)
 
@@ -162,8 +166,33 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             policy = network.policy_predict(np.expand_dims(state, 0)).numpy()[0]
         assert np.count_nonzero(policy) >= game.max_moves, (policy, state)
         actions = random_state.choice(game.action_dim, game.max_moves, p=policy, replace=False)
+
+        #*** Baseline ***#
+        # for a in actions:
+        #     a_batch.append(a)
+
+        #*** Scheme 1: Select critical flows from partial OD flows whose shortest path include centralized links
+
+        # for a in actions:
+        #     if a not in action_space:
+        #         a_batch.append(0)
+        #     else:
+        #         a_batch.append(a)
+
+        #*** Scheme 2: Select critical flows from the intersection between cf_potetial and OD flows whose shortest path include centralized links,
+        # cf_potetial include top K flows calculated by link_load/link_capacity, which k equals to the amount of centralized OD flows
+        cf = game.get_critical_topK_flows_beta(config, tm_idx, action_space, critical_links=10)
+
         for a in actions:
-            a_batch.append(a)
+            if a not in cf:
+                a_batch.append(0)
+            else:
+                a_batch.append(a)
+
+        # for a in cf:
+        #     a_batch.append(a)
+
+        # exit(1)
 
         # reward
         reward = game.reward(tm_idx, actions)
@@ -216,8 +245,8 @@ def main(_):
     config = get_config(FLAGS) or FLAGS
     env = Environment(config, is_training=True)
     game = CFRRL_Game(config, env)
-    model_weights_queues = []
-    experience_queues = []
+    model_weights_queues = [] # fixed Q target network?
+    experience_queues = []  # experience pool?
     if FLAGS.num_agents == 0 or FLAGS.num_agents >= mp.cpu_count():
         FLAGS.num_agents = mp.cpu_count() - 1
     print('Agent num: %d, iter num: %d\n' % (FLAGS.num_agents + 1, FLAGS.num_iter))
@@ -233,11 +262,13 @@ def main(_):
 
     coordinator.start()
 
+    _, action_space = utility(config=config).scaling_action_space()
+
     agents = []
     for i in range(FLAGS.num_agents):
         agents.append(mp.Process(target=agent,
                                  args=(i, config, game, tm_subsets[i],
-                                 model_weights_queues[i], experience_queues[i])))
+                                 model_weights_queues[i], experience_queues[i], action_space)))
 
     for i in range(FLAGS.num_agents):
         agents[i].start()

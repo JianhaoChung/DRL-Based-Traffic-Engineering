@@ -3,9 +3,11 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import time
 from tqdm import tqdm
 import numpy as np
 from pulp import LpMinimize, LpMaximize, LpProblem, LpStatus, lpSum, LpVariable, value, GLPK
+from utils import utility
 
 OBJ_EPSILON = 1e-12
 
@@ -33,6 +35,9 @@ class Game(object):
         self.get_ecmp_next_hops()
         self.model_type = config.model_type
 
+        self.cf_influence = config.cf_influence
+        self.critical_links = config.critical_links
+
         # for LP
         self.lp_pairs = [p for p in range(self.num_pairs)]
         self.lp_nodes = [n for n in range(self.num_nodes)]
@@ -42,7 +47,11 @@ class Game(object):
 
         self.load_multiplier = {}
 
-    def generate_inputs(self, normalization=True):
+        if config.partial_tm_zeroing is True:
+            self.zeroing_position = utility(config=config).scaling_action_space()
+            # print('TM zero position: {}'.format(self.zero_position))
+
+    def generate_inputs(self, config, normalization=True):
         self.normalized_traffic_matrices = np.zeros(
             (self.valid_tm_cnt, self.traffic_matrices_dims[1], self.traffic_matrices_dims[2], self.tm_history),
             dtype=np.float32)  # tm state  [Valid_tms, Node, Node, History]
@@ -53,6 +62,12 @@ class Game(object):
                     tm_max_element = np.max(self.traffic_matrices[tm_idx - h])
                     self.normalized_traffic_matrices[tm_idx - idx_offset, :, :, h] = \
                         self.traffic_matrices[tm_idx - h] / tm_max_element  # [Valid_tms, Node, Node, History]
+
+                    if config.partial_tm_zeroing == True:
+                        for z in self.zero_position:
+                            i, j = z
+                            self.normalized_traffic_matrices[tm_idx,i,j,h] = 0
+
                 else:
                     self.normalized_traffic_matrices[tm_idx - idx_offset, :, :, h] = self.traffic_matrices[
                         tm_idx - h]  # [Valid_tms, Node, Node, History]
@@ -72,6 +87,20 @@ class Game(object):
 
         return cf
 
+    def get_topK_flows_beta(self, config, tm_idx, pairs):
+        tm = self.traffic_matrices[tm_idx]
+        f = {}
+        for p in pairs:
+            s, d = self.pair_idx_to_sd[p]
+            f[p] = tm[s][d]
+
+        sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
+        cf = []
+
+        for i in range(self.max_moves*5):
+            cf.append(sorted_f[i][0])
+        return cf
+
     def get_ecmp_next_hops(self):
         self.ecmp_next_hops = {}
         for src in range(self.num_nodes):
@@ -86,14 +115,10 @@ class Game(object):
     def ecmp_next_hop_distribution(self, link_loads, demand, src, dst):
         if src == dst:
             return
-
         ecmp_next_hops = self.ecmp_next_hops[src, dst]
-
         next_hops_cnt = len(ecmp_next_hops)
-        # if next_hops_cnt > 1:
-        # print(self.shortest_paths_node[self.pair_sd_to_idx[(src, dst)]])
-
         ecmp_demand = demand / next_hops_cnt
+
         for np in ecmp_next_hops:
             link_loads[self.link_sd_to_idx[(src, np)]] += ecmp_demand
             self.ecmp_next_hop_distribution(link_loads, ecmp_demand, np, dst)
@@ -111,30 +136,38 @@ class Game(object):
 
     def get_critical_topK_flows(self, tm_idx, critical_links=5):
         link_loads = self.ecmp_traffic_distribution(tm_idx)
-
-        '''
-        ### for example:
-        >>> np.argsort(np.array([5,4,3,2,1]))
-        array([4, 3, 2, 1, 0])
-        '''
         critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
         cf_potential = []
         for pair_idx in range(self.num_pairs):
             for path in self.shortest_paths_link[pair_idx]:
-                if len(set(path).intersection(critical_link_indexes)) > 0:
+                if len(set(path).intersection(critical_link_indexes)) > self.cf_influence:
                     cf_potential.append(pair_idx)
                     break
 
-        # print("count:{}, cf_potential:{}".format(len(cf_potential),cf_potential))
+        assert len(cf_potential) >= self.max_moves, \
+            ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (cf_potential, self.max_moves, critical_links))
 
+        return self.get_topK_flows(tm_idx, cf_potential)
+
+    def get_critical_topK_flows_beta(self, config, tm_idx, central_flow_space, critical_links=5):
+        link_loads = self.ecmp_traffic_distribution(tm_idx)
+        critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
+        cf_potential = []
+        for pair_idx in range(self.num_pairs):
+            for path in self.shortest_paths_link[pair_idx]:
+                if len(set(path).intersection(critical_link_indexes)) > 0 and pair_idx in central_flow_space:
+                    cf_potential.append(pair_idx)
+                    break
         assert len(cf_potential) >= self.max_moves, \
             ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (
-                cf_potential, self.max_moves, critical_links))
-        return self.get_topK_flows(tm_idx, cf_potential)
+            cf_potential, self.max_moves, critical_links))
+
+        return self.get_topK_flows_beta(config, tm_idx, cf_potential)
 
     def eval_ecmp_traffic_distribution(self, tm_idx, eval_delay=False):
         eval_link_loads = self.ecmp_traffic_distribution(tm_idx)
         eval_max_utilization = np.max(eval_link_loads / self.link_capacities)
+        # todo load_multiplier[tm_idx] ?
         self.load_multiplier[tm_idx] = 0.9 / eval_max_utilization
         delay = 0
         if eval_delay:
@@ -144,8 +177,10 @@ class Game(object):
         return eval_max_utilization, delay
 
     def optimal_routing_mlu(self, tm_idx):
+
         tm = self.traffic_matrices[tm_idx]
         demands = {}
+
         for i in range(self.num_pairs):
             s, d = self.pair_idx_to_sd[i]
             demands[i] = tm[s][d]
@@ -155,24 +190,23 @@ class Game(object):
         link_load = LpVariable.dicts(name="link_load", indexs=self.links)
         r = LpVariable(name="congestion_ratio")
 
+        # todo
         # lpSum: Calculate the sum of a list of linear expressions
         for pr in self.lp_pairs:
-            model += (
-                lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][0]]) - lpSum(
-                    [ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][0]]) == -1,
+            model += (lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][0]]) -
+                 lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][0]]) == -1,
                 "flow_conservation_constr1_%d" % pr)  # formula (4d-1)
 
         for pr in self.lp_pairs:
-            model += (
-                lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][1]]) - lpSum(
-                    [ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][1]]) == 1,
+            model += (lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][1]]) -
+                      lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][1]]) == 1,
                 "flow_conservation_constr2_%d" % pr)  # formula (4d-2)
 
         for pr in self.lp_pairs:
             for n in self.lp_nodes:
                 if n not in self.pair_idx_to_sd[pr]:
-                    model += (lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == n]) - lpSum(
-                        [ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == n]) == 0,
+                    model += (lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == n]) -
+                              lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == n]) == 0,
                               "flow_conservation_constr3_%d_%d" % (pr, n))  # formula (4d-3)
 
         for e in self.lp_links:
@@ -202,7 +236,6 @@ class Game(object):
             for e in self.lp_links:
                 link_idx = self.link_sd_to_idx[e]
                 optimal_link_loads[link_idx] += demand * solution[i, e[0], e[1]]
-
         optimal_max_utilization = np.max(optimal_link_loads / self.link_capacities)
         delay = 0
         if eval_delay:
@@ -219,18 +252,16 @@ class Game(object):
         background_link_loads = np.zeros(self.num_links)
         for i in range(self.num_pairs):
             s, d = self.pair_idx_to_sd[i]
-            # background link load
             if i not in critical_pairs:
+                # background link load calculation
                 self.ecmp_next_hop_distribution(background_link_loads, tm[s][d], s, d)
             else:
                 demands[i] = tm[s][d]
 
         model = LpProblem(name="routing")
-
-        pair_links = [(pr, e[0], e[1]) for pr in pairs for e in self.lp_links]
+        pair_links = [(pr, e[0], e[1]) for pr in pairs for e in self.lp_links]  # pairs ---> critical paris
         ratio = LpVariable.dicts(name="ratio", indexs=pair_links, lowBound=0, upBound=1)
         link_load = LpVariable.dicts(name="link_load", indexs=self.links)
-
         r = LpVariable(name="congestion_ratio")
 
         # formula (4d) constraint
@@ -239,11 +270,13 @@ class Game(object):
                 lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][0]]) - lpSum(
                     [ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][0]]) == -1,
                 "flow_conservation_constr1_%d" % pr)   # formula (4d) constraint ?
+
         for pr in pairs:
             model += (
                 lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][1]]) - lpSum(
                     [ratio[pr, e[0], e[1]] for e in self.lp_links if e[0] == self.pair_idx_to_sd[pr][1]]) == 1,
                 "flow_conservation_constr2_%d" % pr)
+
         for pr in pairs:
             for n in self.lp_nodes:
                 if n not in self.pair_idx_to_sd[pr]:
@@ -254,9 +287,7 @@ class Game(object):
         # formula (4b) constraint
         for e in self.lp_links:
             ei = self.link_sd_to_idx[e]
-            model += (
-                link_load[ei] == background_link_loads[ei] + lpSum(
-                    [demands[pr] * ratio[pr, e[0], e[1]] for pr in pairs]),
+            model += (link_load[ei] == background_link_loads[ei] + lpSum([demands[pr] * ratio[pr, e[0], e[1]] for pr in pairs]),
                 "link_load_constr%d" % ei)
 
             model += (link_load[ei] <= self.link_capacities[ei] * r, "congestion_ratio_constr%d" % ei)  # formula (4c) constraint
@@ -381,10 +412,10 @@ class Game(object):
 class CFRRL_Game(Game):
     def __init__(self, config, env, random_seed=1000):
         super(CFRRL_Game, self).__init__(config, env, random_seed)
-
         self.project_name = config.project_name
         self.action_dim = env.num_pairs
         self.max_moves = int(self.action_dim * (config.max_moves / 100.))
+
         assert self.max_moves <= self.action_dim, (self.max_moves, self.action_dim)
 
         self.tm_history = 1
@@ -394,7 +425,8 @@ class CFRRL_Game(Game):
         if config.method == 'pure_policy':
             self.baseline = {}
 
-        self.generate_inputs(normalization=True)
+        self.generate_inputs(config, normalization=True)
+
         self.state_dims = self.normalized_traffic_matrices.shape[1:] # (12, 12, 1) for Abilene Topo
 
         print('Input dims :', self.state_dims)

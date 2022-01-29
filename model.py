@@ -17,7 +17,8 @@ class Network:
                           + config.method + '_' \
                           + config.model_type + '_' \
                           + config.topology_file + '_' \
-                          + config.traffic_file + 'debug'
+                          + config.traffic_file \
+                          + '_' + config.model_name_suffix
 
         if config.method == 'actor_critic':
             self.create_actor_critic_model(config)
@@ -133,12 +134,6 @@ class Network:
         policy_loss = tf.reduce_sum(policy_loss)
 
         return policy_loss, entropy
-
-    # tf.function is a decorator function provided by Tensorflow 2.0
-    # that converts regular python code to a callable Tensorflow graph function,
-    # which is usually more performant and python independent. It is used to create portable Tensorflow models.
-    # TF2.0 has the tf.function API, to give any user the option to convert a regular (eager) python code
-    # to a lazy code which is actually speed optimized.
 
     @tf.function
     def actor_critic_train(self, inputs, actions, rewards, entropy_weight=0.01):

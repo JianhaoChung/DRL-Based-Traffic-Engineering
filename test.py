@@ -1,5 +1,9 @@
 from __future__ import print_function
 
+import warnings
+
+warnings.filterwarnings("ignore")
+import time
 import numpy as np
 import tensorflow as tf
 from absl import app
@@ -12,10 +16,12 @@ from model import Network
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string('ckpt', '', 'apply a specific checkpoint')
-flags.DEFINE_boolean('eval_delay', False, 'evaluate delay or not')
+# flags.DEFINE_boolean('eval_delay', False, 'evaluate delay or not')
+flags.DEFINE_boolean('eval_delay', True, 'evaluate delay or not')
 
 
 def sim(config, network, game):
+    start = time.time()
     for tm_idx in game.tm_indexes:
         state = game.get_state(tm_idx)
         if config.method == 'actor_critic':
@@ -25,6 +31,8 @@ def sim(config, network, game):
         actions = policy.argsort()[-game.max_moves:]
 
         game.evaluate(tm_idx, actions, eval_delay=FLAGS.eval_delay)
+    end = time.time()
+    print("\nTest time: {} mins {} secs".format((end - start) // 60, (end - start) % 60))
 
 
 def main(_):
@@ -35,7 +43,6 @@ def main(_):
     config = get_config(FLAGS) or FLAGS
     env = Environment(config, is_training=False)
     game = CFRRL_Game(config, env)
-
     network = Network(config, game.state_dims, game.action_dim, game.max_moves)
 
     step = network.restore_ckpt(FLAGS.ckpt)
