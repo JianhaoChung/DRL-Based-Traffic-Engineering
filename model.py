@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-
 import inspect
 import os
 import tensorflow as tf
@@ -44,19 +43,16 @@ class Network:
             elif config.method == 'pure_policy':
                 self.optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
 
-        # TensorFlow objects may contain trackable state, such as tf.Variables, tf.keras.optimizers.Optimizer implementations, tf.data.Dataset iterators, 
-        # tf.keras.Layer implementations, or tf.keras.Model implementations. These are called trackable objects.
-        # A Checkpoint object can be constructed to save either a single or group of trackable objects to a checkpoint file. 
-        # It maintains a save_counter for numbering checkpoints.
-
         if master:
             if config.method == 'actor_critic':
                 self.ckpt = tf.train.Checkpoint(step=tf.Variable(1), actor_optimizer=self.actor_optimizer,
                                                 critic_optimizer=self.critic_optimizer, model=self.model)
             elif config.method == 'pure_policy':
                 self.ckpt = tf.train.Checkpoint(step=tf.Variable(1), optimizer=self.optimizer, model=self.model)
+
             self.ckpt_dir = './tf_ckpts/' + self.model_name
-            self.manager = tf.train.CheckpointManager(self.ckpt, self.ckpt_dir, max_to_keep=config.max_to_keep) # Manages multiple checkpoints by keeping some and deleting unneeded ones.
+            # Manages multiple checkpoints by keeping some and deleting unneeded ones.
+            self.manager = tf.train.CheckpointManager(self.ckpt, self.ckpt_dir, max_to_keep=config.max_to_keep)
             self.writer = tf.compat.v2.summary.create_file_writer('./logs/%s' % self.model_name)
             # self.save_hyperparams(config)
             self.model.summary()
@@ -75,6 +71,7 @@ class Network:
         x_1 = tf.keras.layers.LeakyReLU()(x_1)
         Dense2_1 = tf.keras.layers.Dense(self.action_dim)
         logits = Dense2_1(x_1)
+
         # Logit clipping
         if config.logit_clipping > 0:
             logits = config.logit_clipping * tf.keras.activations.tanh(logits)
@@ -119,15 +116,13 @@ class Network:
         return value_loss, advantages
 
     def policy_loss_fn(self, logits, actions, advantages, entropy_weight=0.01, log_epsilon=1e-12):
-        actions = tf.reshape(actions, [-1, self.max_moves,
-                                       self.action_dim])  # actions shape = [batch_size, max_moves, action_dim]
+        actions = tf.reshape(actions, [-1, self.max_moves, self.action_dim])  # actions shape = [batch_size, max_moves, action_dim]
         policy = tf.nn.softmax(logits)  # policy shape = [batch_size, action_dim]
         assert policy.shape[0] == actions.shape[0] and advantages.shape[0] == actions.shape[0]
         entropy = tf.nn.softmax_cross_entropy_with_logits(labels=policy, logits=logits)  # entropy shape = [batch_size,]
         entropy = tf.expand_dims(entropy, -1)  # [batch_size, 1]
         policy = tf.expand_dims(policy, -1)  # policy shape = [batch_size, action_dim, 1]
-        policy_loss = tf.math.log(
-            tf.maximum(tf.squeeze(tf.matmul(actions, policy)), log_epsilon))  # [batch_size, max_moves]
+        policy_loss = tf.math.log(tf.maximum(tf.squeeze(tf.matmul(actions, policy)), log_epsilon))  # [batch_size, max_moves]
         policy_loss = tf.reduce_sum(policy_loss, 1, keepdims=True)  # [batch_size, 1]
         policy_loss = tf.multiply(policy_loss, tf.stop_gradient(-advantages))  # [batch_size, 1]
         policy_loss -= entropy_weight * entropy
@@ -191,7 +186,6 @@ class Network:
             checkpoint = self.manager.latest_checkpoint
         else:
             checkpoint = self.ckpt_dir + '/' + checkpoint
-
         self.ckpt.restore(checkpoint).expect_partial()
         if checkpoint:
             step = int(self.ckpt.step)

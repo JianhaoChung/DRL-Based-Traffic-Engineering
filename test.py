@@ -39,12 +39,10 @@ def main(_):
     # Using cpu for testing
     tf.config.experimental.set_visible_devices([], 'GPU')
     tf.get_logger().setLevel('INFO')
-
     config = get_config(FLAGS) or FLAGS
     env = Environment(config, is_training=False)
     game = CFRRL_Game(config, env)
     network = Network(config, game.state_dims, game.action_dim, game.max_moves)
-
     step = network.restore_ckpt(FLAGS.ckpt)
     if config.method == 'actor_critic':
         learning_rate = network.lr_schedule(network.actor_optimizer.iterations.numpy()).numpy()
