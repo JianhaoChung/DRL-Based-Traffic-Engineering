@@ -195,7 +195,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             cf = game.get_critical_topK_flows_beta2(config, tm_idx, action_space, critical_links=10, multiplier=3)
 
         if config.scheme == 'beta++':
-            cf_space = game.get_critical_topK_flows_beta(config, tm_idx,critical_links=5, multiplier=2)
+            cf_space = game.get_critical_topK_flows_beta(config, tm_idx, critical_links=5, multiplier=2)
             # print(cf_space)
             cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
             for a in cf_action:
@@ -230,6 +230,13 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                         a = np.random.choice(nf, 1)
                     a_batch.append(a)
 
+        if config.scheme == 'deta':
+            #todo
+            cf_space = action_space
+            cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
+            for a in cf_action:
+                a_batch.append(a)
+
         if config.scheme == 'gamma':
             # Scheme 3
             cf = game.get_central_critical_topK_flows(tm_idx, action_space, critical_links=5)
@@ -262,6 +269,8 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
         # Reward
         if config.scheme in ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']:
             reward = game.reward_beta(tm_idx, actions, action_space, pairs_mapper)
+        elif config.scheme in ['beta++', 'deta']:
+            reward = game.reward(tm_idx, cf_action)
         else:
             reward = game.reward(tm_idx, actions)
 

@@ -158,10 +158,11 @@ def cdf_plot_v2(file, scheme=None):
 
 
 if __name__ == '__main__':
-    file = 'result/result-actor-critic-baseline.csv'
+    # file = 'result/result-actor-critic-baseline.csv'
 
     # file = 'result/result-actor-critic-alpha+.csv'
     # file = 'result/result-actor-critic-beta.csv'
+    file = 'result/result-actor-critic-beta+.csv'
 
     # file = 'result/result-actor-critic-debug++.csv'
 
