@@ -12,6 +12,10 @@ class NetworkConfig(object):
 
     Conv2D_out = 128
     Dense_out = 128
+
+    # Conv2D_out = 64
+    # Dense_out = 64
+
     optimizer = 'RMSprop'
     # optimizer = 'Adam'
 
@@ -39,9 +43,9 @@ class Config(NetworkConfig):
     partial_tm_zeroing = False  # False by default
     # partial_tm_zeroing = True
 
-    suffix = ['baseline', 'alpha', 'alpha+', 'beta', 'beta+',
-              'gamma', 'deta', 'epsilon', 'debug', 'debug+', 'debug++']
-    scheme = model_name_suffix = suffix[-1]
+    suffix = ['baseline', 'alpha', 'alpha+', 'beta', 'beta+', 'beta++',
+              'deta',  'debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
+    scheme = model_name_suffix = suffix[5]
 
     central_links_nums = 10
     cf_influence = 1    # 1 by default

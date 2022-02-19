@@ -11,13 +11,8 @@ class Network:
         self.input_dims = input_dims
         self.action_dim = action_dim
         self.max_moves = max_moves
-        self.model_name = config.version + '-' \
-                          + config.project_name + '_' \
-                          + config.method + '_' \
-                          + config.model_type + '_' \
-                          + config.topology_file + '_' \
-                          + config.traffic_file \
-                          + '_' + config.model_name_suffix
+        self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
+                          + config.topology_file + '_' + config.traffic_file + '_' + config.model_name_suffix
 
         if config.method == 'actor_critic':
             self.create_actor_critic_model(config)
@@ -36,6 +31,7 @@ class Network:
                 self.critic_optimizer = tf.keras.optimizers.RMSprop(learning_rate=self.lr_schedule)
             elif config.method == 'pure_policy':
                 self.optimizer = tf.keras.optimizers.RMSprop(learning_rate=self.lr_schedule)
+
         elif config.optimizer == 'Adam':
             if config.method == 'actor_critic':
                 self.actor_optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_schedule)
@@ -184,6 +180,8 @@ class Network:
     def restore_ckpt(self, checkpoint=''):
         if checkpoint == '':
             checkpoint = self.manager.latest_checkpoint
+            print(checkpoint)
+            # exit(1)
         else:
             checkpoint = self.ckpt_dir + '/' + checkpoint
         self.ckpt.restore(checkpoint).expect_partial()

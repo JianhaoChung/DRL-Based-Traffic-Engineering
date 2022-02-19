@@ -188,11 +188,47 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             # *** Scheme 2.0: Select critical flows from the intersection between cf_potetial and OD flows whose shortest path include centralized links,
             # cf_potetial include top K flows calculated by link_load/link_capacity, which k equals to the amount of centralized OD flows
 
-            cf = game.get_critical_topK_flows_beta(config, tm_idx, action_space, critical_links=10, multiplier=5)
+            cf = game.get_critical_topK_flows_beta2(config, tm_idx, action_space, critical_links=10, multiplier=5)
 
         if config.scheme == 'beta+' and config.central_influence == 2:
             # Scheme 2.1
-            cf = game.get_critical_topK_flows_beta(config, tm_idx, action_space, critical_links=10, multiplier=3)
+            cf = game.get_critical_topK_flows_beta2(config, tm_idx, action_space, critical_links=10, multiplier=3)
+
+        if config.scheme == 'beta++':
+            cf_space = game.get_critical_topK_flows_beta(config, tm_idx,critical_links=5, multiplier=2)
+            # print(cf_space)
+            cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
+            for a in cf_action:
+                a_batch.append(a)
+
+        if config.scheme == 'beta+++':
+            tm = game.traffic_matrices[tm_idx]
+            f = {}
+            pairs = [i for i in range(132)]
+            for p in pairs:
+                s, d = game.pair_idx_to_sd[p]
+                f[p] = tm[s][d]
+            sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=False)
+            nf = []
+            for i in range(game.max_moves):
+                nf.append(sorted_f[i][0])
+
+            nf_count = 0
+            for a in actions:
+                if a not in action_space:
+                    nf_count += 1
+                else:
+                    a_batch.append(a)
+
+            nf_action = np.random.choice(nf, nf_count, replace=False)
+            for a in nf_action:
+                a_batch.append(a)
+
+            if False:
+                for a in actions:
+                    if a not in cf:
+                        a = np.random.choice(nf, 1)
+                    a_batch.append(a)
 
         if config.scheme == 'gamma':
             # Scheme 3
@@ -208,22 +244,27 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                 else:
                     a_batch.append(a)
 
-        if config.scheme in ['debug+','debug++']:
-
-            # actions = random_state.choice(action_space, game.max_moves, p=policy, replace=False)
-            # for a in actions:
-            #     a_batch.append(action_space.index(a))
-
-            cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38,
-                  40, 43, 46, 47, 48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76,
-                  79, 80, 82, 83, 84, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109,
-                  110, 111, 112, 113, 115, 116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
-            actions = random_state.choice(cf, game.max_moves, p=policy, replace=False)
+        if config.scheme in ['debug+', 'debug++', 'debug+++', 'debug++++']:
+            action_space = [i for i in range(132)]
+            actions = random_state.choice(action_space, game.max_moves, p=policy, replace=False)
             for a in actions:
-                a_batch.append(cf.index(a))
+                a_batch.append(action_space.index(a))
+
+            if False:
+                cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38,
+                      40, 43, 46, 47, 48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76,
+                      79, 80, 82, 83, 84, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109,
+                      110, 111, 112, 113, 115, 116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
+                actions = random_state.choice(cf, game.max_moves, p=policy, replace=False)
+                for a in actions:
+                    a_batch.append(cf.index(a))
 
         # Reward
-        reward = game.reward(tm_idx, actions)
+        if config.scheme in ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']:
+            reward = game.reward_beta(tm_idx, actions, action_space, pairs_mapper)
+        else:
+            reward = game.reward(tm_idx, actions)
+
         r_batch.append(reward)
         # print(reward)
 
@@ -281,7 +322,7 @@ def main(_):
 
     if FLAGS.central_flow_inclued:
         centralized_links, _, action_space = utility(config=config).\
-            scaling_action_space(central_influence=config.central_influence,print_=False)
+            scaling_action_space(central_influence=config.central_influence, print_=False)
 
         cf_pair_idx_to_sd = [env.pair_idx_to_sd[p] for p in action_space]
 
@@ -295,8 +336,7 @@ def main(_):
 
     tm_subsets = np.array_split(game.tm_indexes, FLAGS.num_agents)
 
-    coordinator = mp.Process(target=central_agent,
-                             args=(config, game, model_weights_queues, experience_queues))
+    coordinator = mp.Process(target=central_agent, args=(config, game, model_weights_queues, experience_queues))
 
     coordinator.start()
 

@@ -82,8 +82,8 @@ class Game(object):
             f[p] = tm[s][d]
 
         sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
-
         cf = []
+
         for i in range(self.max_moves):
             cf.append(sorted_f[i][0])
 
@@ -137,7 +137,6 @@ class Game(object):
         return link_loads
 
     def get_critical_topK_flows(self, tm_idx, critical_links=5):
-
         link_loads = self.ecmp_traffic_distribution(tm_idx)
         critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
         cf_potential = []
@@ -152,11 +151,26 @@ class Game(object):
 
         return self.get_topK_flows(tm_idx, cf_potential)
 
-    def get_critical_topK_flows_beta(self, config, tm_idx, central_flow_space, critical_links=5, multiplier=1):
+    def get_critical_topK_flows_beta(self, config, tm_idx, critical_links=5, multiplier=1):
         link_loads = self.ecmp_traffic_distribution(tm_idx)
         critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
         cf_potential = []
+        for pair_idx in range(self.num_pairs):
+            for path in self.shortest_paths_link[pair_idx]:
+                if len(set(path).intersection(critical_link_indexes)) > 0:
+                    cf_potential.append(pair_idx)
+                    break
 
+        assert len(cf_potential) >= self.max_moves, \
+            ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (
+            cf_potential, self.max_moves, critical_links))
+
+        return self.get_topK_flows_beta(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
+
+    def get_critical_topK_flows_beta2(self, config, tm_idx, central_flow_space, critical_links=5, multiplier=1):
+        link_loads = self.ecmp_traffic_distribution(tm_idx)
+        critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
+        cf_potential = []
         for pair_idx in range(self.num_pairs):
             for path in self.shortest_paths_link[pair_idx]:
                 if len(set(path).intersection(critical_link_indexes)) > 0 and pair_idx in central_flow_space:
@@ -357,20 +371,22 @@ class Game(object):
 
         return obj_r, solution
 
-    def optimal_routing_mlu_centralized_pairs(self, tm_idx, selected_pairs):
+    def optimal_routing_mlu_centralized_pairs(self, tm_idx, action, action_space, pairs_mapper):
 
-        cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47,
-              48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76, 79, 80, 82, 83, 84,
-              88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 115,
-              116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
+        # cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47,
+        #       48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76, 79, 80, 82, 83, 84,
+        #       88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 115,
+        #       116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
+        #
+        # cf_pair_idx_to_sd = [self.pair_idx_to_sd[p] for p in cf]
 
-        cf_pair_idx_to_sd = [self.pair_idx_to_sd[p] for p in cf]
+        cf_pair_idx_to_sd = pairs_mapper
 
         for i in range(self.num_pairs):
             if self.pair_idx_to_sd[i] not in cf_pair_idx_to_sd:
                 cf_pair_idx_to_sd.append(self.pair_idx_to_sd[i])
 
-        critical_pairs = [cf.index(p) for p in selected_pairs] # flow index mapping
+        critical_pairs = [action_space.index(p) for p in action] # flow index mapping
 
         tm = self.traffic_matrices[tm_idx]
         pairs = critical_pairs
@@ -540,8 +556,8 @@ class CFRRL_Game(Game):
         super(CFRRL_Game, self).__init__(config, env, random_seed)
         self.project_name = config.project_name
         # action space dimension
-        if config.scheme in ['debug+','debug++']:
-            _, _, action_space = utility(config=config).scaling_action_space_beta(central_influence=config.central_influence)
+        if config.scheme in ['debug+','debug++','debug+++']:
+            _, _, action_space = utility(config=config).scaling_action_space(central_influence=config.central_influence)
             self.action_dim = len(action_space)
         else:
             self.action_dim = env.num_pairs
@@ -570,10 +586,13 @@ class CFRRL_Game(Game):
 
     def reward(self, tm_idx, actions):
 
-        # mlu, _ = self.optimal_routing_mlu_critical_pairs(tm_idx, actions)
+        mlu, _ = self.optimal_routing_mlu_critical_pairs(tm_idx, actions)
+        reward = 1 / mlu
+        return reward
 
-        mlu, _ = self.optimal_routing_mlu_centralized_pairs(tm_idx, actions)
+    def reward_beta(self, tm_idx, actions, action_space=None, pairs_mapper=None):
 
+        mlu, _ = self.optimal_routing_mlu_centralized_pairs(tm_idx, actions, action_space, pairs_mapper)
         reward = 1 / mlu
         return reward
 

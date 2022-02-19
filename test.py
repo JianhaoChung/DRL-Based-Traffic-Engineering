@@ -29,7 +29,6 @@ def sim(config, network, game):
         elif config.method == 'pure_policy':
             policy = network.policy_predict(np.expand_dims(state, 0)).numpy()[0]
         actions = policy.argsort()[-game.max_moves:]
-
         game.evaluate(tm_idx, actions, eval_delay=FLAGS.eval_delay)
     end = time.time()
     print("\nTest time: {} mins {} secs".format((end - start) // 60, (end - start) % 60))

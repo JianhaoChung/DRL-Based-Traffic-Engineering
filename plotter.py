@@ -12,11 +12,11 @@ def data_analyzer(file):
     delay_idx = [10, 11, 12, 13]
     print('*Average load balancing performance ratio among different schemes*')
     print(np.mean(df[mlu_idx[0]].to_numpy()), np.mean(df[mlu_idx[1]].to_numpy()),
-          np.mean(df[mlu_idx[2]].to_numpy()), np.mean(df[mlu_idx[2]].to_numpy()))
+          np.mean(df[mlu_idx[2]].to_numpy()), np.mean(df[mlu_idx[3]].to_numpy()))
 
     print('\n*Average end-to-end delay performance ratio among different schemes*')
     print(np.mean(df[delay_idx[0]].to_numpy()), np.mean(df[delay_idx[1]].to_numpy()),
-          np.mean(df[delay_idx[2]].to_numpy()), np.mean(df[delay_idx[2]].to_numpy()))
+          np.mean(df[delay_idx[2]].to_numpy()), np.mean(df[delay_idx[3]].to_numpy()))
 
 
 def pr_plot(file, scheme='mlu'):
@@ -158,14 +158,14 @@ def cdf_plot_v2(file, scheme=None):
 
 
 if __name__ == '__main__':
-    # file = 'result/result-actor-critic-baseline.csv'
+    file = 'result/result-actor-critic-baseline.csv'
 
     # file = 'result/result-actor-critic-alpha+.csv'
     # file = 'result/result-actor-critic-beta.csv'
 
-    # file = 'result/result-actor-critic-debug+.csv'
+    # file = 'result/result-actor-critic-debug++.csv'
 
-    file = 'result/result-pure-policy-baseline.csv'
+    # file = 'result/result-pure-policy-baseline.csv'
     # file = 'result/result-pure-policy-alpha+.csv'
 
     data_analyzer(file)
