@@ -18,6 +18,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_string('ckpt', '', 'apply a specific checkpoint')
 # flags.DEFINE_boolean('eval_delay', False, 'evaluate delay or not')
 flags.DEFINE_boolean('eval_delay', True, 'evaluate delay or not')
+flags.DEFINE_boolean('central_included', True, 'central link included or not')
 
 
 def sim(config, network, game):
@@ -29,7 +30,7 @@ def sim(config, network, game):
         elif config.method == 'pure_policy':
             policy = network.policy_predict(np.expand_dims(state, 0)).numpy()[0]
         actions = policy.argsort()[-game.max_moves:]
-        game.evaluate(tm_idx, actions, eval_delay=FLAGS.eval_delay)
+        game.evaluate(tm_idx, actions, eval_delay=FLAGS.eval_delay, central=FLAGS.central_included)
     end = time.time()
     print("\nTest time: {} mins {} secs".format((end - start) // 60, (end - start) % 60))
 

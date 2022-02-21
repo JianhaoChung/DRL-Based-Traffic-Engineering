@@ -2,21 +2,57 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from absl import flags
 
-def data_analyzer(file):
+FLAGS = flags.FLAGS
+flags.DEFINE_boolean('central_included', True, 'central link included or not')
+
+
+def data_analyzer(file, central=False):
     df = pd.read_csv(file, header=None)
 
     # print(df.shape, df.info(), df.describe())
-
     mlu_idx = [1, 3, 5, 7]
-    delay_idx = [10, 11, 12, 13]
-    print('*Average load balancing performance ratio among different schemes*')
-    print(np.mean(df[mlu_idx[0]].to_numpy()), np.mean(df[mlu_idx[1]].to_numpy()),
-          np.mean(df[mlu_idx[2]].to_numpy()), np.mean(df[mlu_idx[3]].to_numpy()))
+    delay_idx = [11, 12, 13, 16]
 
-    print('\n*Average end-to-end delay performance ratio among different schemes*')
-    print(np.mean(df[delay_idx[0]].to_numpy()), np.mean(df[delay_idx[1]].to_numpy()),
-          np.mean(df[delay_idx[2]].to_numpy()), np.mean(df[delay_idx[3]].to_numpy()))
+    if central:
+        mlu_idx = [1, 3, 5, 7, 9]
+        delay_idx = [11, 12, 13, 14, 16]
+
+    avg_mlu = [np.mean(df[mlu_idx[0]].to_numpy()), np.mean(df[mlu_idx[1]].to_numpy()),
+               np.mean(df[mlu_idx[2]].to_numpy()), np.mean(df[mlu_idx[3]].to_numpy())]
+
+    avg_delay = [np.mean(df[delay_idx[0]].to_numpy()), np.mean(df[delay_idx[1]].to_numpy()),
+                 np.mean(df[delay_idx[2]].to_numpy()), np.mean(df[delay_idx[3]].to_numpy())]
+    if central:
+        avg_delay.append(np.mean(df[mlu_idx[-1]].to_numpy()))
+        avg_mlu.append(np.mean(df[mlu_idx[-1]].to_numpy()))
+
+    if central:
+        print('#*#*#* Schemes: [DRL-Policy, TopK-Critical, TopK-Centralized, TopK, ECMP] *#*#*#')
+    else:
+        print('#*#*#* Schemes: [DRL-Policy, TopK-Critical, TopK, ECMP] *#*#*#')
+
+    days = 7
+    s = [i * 288 for i in range(days)]
+    e = [(i + 1) * 288 - 1 for i in range(days)]
+    for i in range(days):
+        df_segment = df[s[i]:e[i]]
+
+        day_avg_mlu = [np.mean(df_segment[mlu_idx[0]].to_numpy()), np.mean(df_segment[mlu_idx[1]].to_numpy()),
+                       np.mean(df_segment[mlu_idx[2]].to_numpy()), np.mean(df_segment[mlu_idx[3]].to_numpy())]
+
+        day_avg_delay = [np.mean(df_segment[delay_idx[0]].to_numpy()), np.mean(df_segment[delay_idx[1]].to_numpy()),
+                         np.mean(df_segment[delay_idx[2]].to_numpy()), np.mean(df_segment[delay_idx[3]].to_numpy())]
+        if central:
+            day_avg_delay.append(np.mean(df_segment[mlu_idx[-1]].to_numpy()))
+            day_avg_mlu.append(np.mean(df_segment[mlu_idx[-1]].to_numpy()))
+
+        print('\n*Day{} AVG MLU: '.format(i + 1), day_avg_mlu)
+        print('*Day{} AVG DELAY:  '.format(i + 1), day_avg_delay)
+
+    print('\n*Average load balancing performance ratio among different schemes in one week *\n', avg_mlu)
+    print('\n*Average end-to-end delay performance ratio among different schemes in one week*\n', avg_delay)
 
 
 def pr_plot(file, scheme='mlu'):
@@ -162,14 +198,17 @@ if __name__ == '__main__':
 
     # file = 'result/result-actor-critic-alpha+.csv'
     # file = 'result/result-actor-critic-beta.csv'
-    file = 'result/result-actor-critic-beta+.csv'
+    # file = 'result/result-actor-critic-beta+.csv'
+    # file = 'result/result-actor-critic-beta++.csv' # *
+    file = 'result/result-actor-critic-beta++++.csv'
 
     # file = 'result/result-actor-critic-debug++.csv'
 
     # file = 'result/result-pure-policy-baseline.csv'
     # file = 'result/result-pure-policy-alpha+.csv'
 
-    data_analyzer(file)
+    data_analyzer(file, central=True)
+    exit(1)
     cdf_plot_v2(file)
     # exit(1)
     cdf_plot(file, scheme='mlu')

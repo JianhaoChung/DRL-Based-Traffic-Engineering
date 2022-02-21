@@ -17,7 +17,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('num_agents', 20, 'number of agents')
 flags.DEFINE_string('baseline', 'avg', 'avg: use average reward as baseline, best: best reward as baseline')
 flags.DEFINE_integer('num_iter', 10, 'Number of iterations each agent would run')
-flags.DEFINE_boolean('central_flow_inclued', True, 'consider central flow scheme or not')
+flags.DEFINE_boolean('central_flow_included', True, 'consider central flow scheme or not')
 
 GRADIENTS_CHECK = False
 
@@ -201,14 +201,18 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             for a in cf_action:
                 a_batch.append(a)
 
-        if config.scheme == 'beta+++':
+        if config.scheme == 'beta+++' or config.scheme=='betas+++':
             tm = game.traffic_matrices[tm_idx]
             f = {}
             pairs = [i for i in range(132)]
             for p in pairs:
                 s, d = game.pair_idx_to_sd[p]
                 f[p] = tm[s][d]
-            sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=False)
+            if config.scheme == 'beta+++':
+                reverse = False
+            else:
+                reverse = True
+            sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=reverse)
             nf = []
             for i in range(game.max_moves):
                 nf.append(sorted_f[i][0])
@@ -225,12 +229,40 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                 a_batch.append(a)
 
             if False:
+                # todo
                 for a in actions:
                     if a not in cf:
                         a = np.random.choice(nf, 1)
                     a_batch.append(a)
 
-        if config.scheme == 'deta':
+        if config.scheme == 'beta++++':
+            # todo
+            tm = game.traffic_matrices[tm_idx]
+            f = {}
+            pairs = [i for i in range(132)]
+            for p in pairs:
+                s, d = game.pair_idx_to_sd[p]
+                f[p] = tm[s][d]
+            sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=False)
+            nf = []
+            for i in range(game.max_moves):
+                nf.append(sorted_f[i][0])
+
+            cf_space = game.get_critical_topK_flows_beta(config, tm_idx, critical_links=5, multiplier=2)
+
+            nf_count = 0
+            for a in actions:
+                if a not in cf_space:
+                    nf_count += 1
+                else:
+                    a_batch.append(a)
+
+            nf_action = np.random.choice(nf, nf_count, replace=False)
+            for a in nf_action:
+                a_batch.append(a)
+
+
+        if config.scheme == 'delta':
             #todo
             cf_space = action_space
             cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
@@ -269,7 +301,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
         # Reward
         if config.scheme in ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']:
             reward = game.reward_beta(tm_idx, actions, action_space, pairs_mapper)
-        elif config.scheme in ['beta++', 'deta']:
+        elif config.scheme in ['beta++', 'delta']:
             reward = game.reward(tm_idx, cf_action)
         else:
             reward = game.reward(tm_idx, actions)
@@ -329,7 +361,7 @@ def main(_):
     model_weights_queues = [] # fixed Q target network?
     experience_queues = []  # experience pool
 
-    if FLAGS.central_flow_inclued:
+    if FLAGS.central_flow_included:
         centralized_links, _, action_space = utility(config=config).\
             scaling_action_space(central_influence=config.central_influence, print_=False)
 

@@ -618,7 +618,7 @@ class CFRRL_Game(Game):
         else:
             self.baseline[tm_idx] = (reward, 1)
 
-    def evaluate(self, tm_idx, actions=None, ecmp=True, eval_delay=False):
+    def evaluate(self, tm_idx, actions=None, ecmp=True, eval_delay=False, central=True):
         if ecmp:
             ecmp_mlu, ecmp_delay = self.eval_ecmp_traffic_distribution(tm_idx, eval_delay=eval_delay)
 
@@ -628,6 +628,12 @@ class CFRRL_Game(Game):
         crit_topk = self.get_critical_topK_flows(tm_idx)
         _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, crit_topk)
         crit_mlu, crit_delay = self.eval_critical_flow_and_ecmp(tm_idx, crit_topk, solution, eval_delay=eval_delay)
+
+        if central:
+            Topk_centralized_links =[(6, 5), (5, 6), (6, 3), (11, 8), (9, 3), (11, 1), (5, 2), (8, 2), (10, 3), (3, 6)]
+            centralized_topk = self.get_central_topK_flows(tm_idx,centralized_links=Topk_centralized_links)
+            _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, centralized_topk)
+            central_mlu, central_delay = self.eval_critical_flow_and_ecmp(tm_idx, centralized_topk, solution, eval_delay=eval_delay)
 
         topk = self.get_topK_flows(tm_idx, self.lp_pairs)
         _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, topk)
@@ -642,6 +648,10 @@ class CFRRL_Game(Game):
         norm_crit_mlu = optimal_mlu / crit_mlu
         line += str(norm_crit_mlu) + ', ' + str(crit_mlu) + ', '
 
+        if central:
+            norm_central_mlu = optimal_mlu / central_mlu
+            line += str(norm_central_mlu) + ', ' + str(central_mlu) + ', '
+
         norm_topk_mlu = optimal_mlu / topk_mlu
         line += str(norm_topk_mlu) + ', ' + str(topk_mlu) + ', '
 
@@ -655,6 +665,10 @@ class CFRRL_Game(Game):
 
             line += str(optimal_delay / delay) + ', '
             line += str(optimal_delay / crit_delay) + ', '
+
+            if central:
+                line += str(optimal_delay / central_delay) + ', '
+
             line += str(optimal_delay / topk_delay) + ', '
             line += str(optimal_delay / optimal_mlu_delay) + ', '
             if ecmp:
