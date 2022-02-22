@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,26 +10,24 @@ FLAGS = flags.FLAGS
 flags.DEFINE_boolean('central_included', True, 'central link included or not')
 
 
-def data_analyzer(file, central=False):
+def data_analyzer(file, label_name, central=False):
     df = pd.read_csv(file, header=None)
-
     # print(df.shape, df.info(), df.describe())
     mlu_idx = [1, 3, 5, 7]
     delay_idx = [11, 12, 13, 16]
-
+    max_tm_idx = 288 * 6  # 288 * 7 (one week) by default
     if central:
         mlu_idx = [1, 3, 5, 7, 9]
         delay_idx = [11, 12, 13, 14, 16]
 
-    avg_mlu = [np.mean(df[mlu_idx[0]].to_numpy()), np.mean(df[mlu_idx[1]].to_numpy()),
-               np.mean(df[mlu_idx[2]].to_numpy()), np.mean(df[mlu_idx[3]].to_numpy())]
+    avg_mlu = [np.mean(df[mlu_idx[0]][:max_tm_idx].to_numpy()), np.mean(df[mlu_idx[1]][:max_tm_idx].to_numpy()),
+               np.mean(df[mlu_idx[2]][:max_tm_idx].to_numpy()), np.mean(df[mlu_idx[3]][:max_tm_idx].to_numpy())]
 
-    avg_delay = [np.mean(df[delay_idx[0]].to_numpy()), np.mean(df[delay_idx[1]].to_numpy()),
-                 np.mean(df[delay_idx[2]].to_numpy()), np.mean(df[delay_idx[3]].to_numpy())]
+    avg_delay = [np.mean(df[delay_idx[0]][:max_tm_idx].to_numpy()), np.mean(df[delay_idx[1]][:max_tm_idx].to_numpy()),
+                 np.mean(df[delay_idx[2]][:max_tm_idx].to_numpy()), np.mean(df[delay_idx[3]][:max_tm_idx].to_numpy())]
     if central:
-        avg_delay.append(np.mean(df[mlu_idx[-1]].to_numpy()))
-        avg_mlu.append(np.mean(df[mlu_idx[-1]].to_numpy()))
-
+        avg_delay.append(np.mean(df[mlu_idx[-1]][:max_tm_idx].to_numpy()))
+        avg_mlu.append(np.mean(df[mlu_idx[-1]][:max_tm_idx].to_numpy()))
     if central:
         print('#*#*#* Schemes: [DRL-Policy, TopK-Critical, TopK-Centralized, TopK, ECMP] *#*#*#')
     else:
@@ -36,6 +36,10 @@ def data_analyzer(file, central=False):
     days = 7
     s = [i * 288 for i in range(days)]
     e = [(i + 1) * 288 - 1 for i in range(days)]
+
+    day_avg_mlu_save = []
+    day_avg_delay_save = []
+
     for i in range(days):
         df_segment = df[s[i]:e[i]]
 
@@ -48,11 +52,116 @@ def data_analyzer(file, central=False):
             day_avg_delay.append(np.mean(df_segment[mlu_idx[-1]].to_numpy()))
             day_avg_mlu.append(np.mean(df_segment[mlu_idx[-1]].to_numpy()))
 
+        day_avg_mlu_save.append(day_avg_mlu)
+        day_avg_delay_save.append(day_avg_delay)
+
         print('\n*Day{} AVG MLU: '.format(i + 1), day_avg_mlu)
         print('*Day{} AVG DELAY:  '.format(i + 1), day_avg_delay)
 
     print('\n*Average load balancing performance ratio among different schemes in one week *\n', avg_mlu)
     print('\n*Average end-to-end delay performance ratio among different schemes in one week*\n', avg_delay)
+
+    def pr_bar_plot_week(metric_name, avg_mlu=None, avg_delay=None, label_name=None):
+        label_name = label_name
+        fig_size = (8, 6)
+        plt.figure(figsize=fig_size)
+        plt.rcParams['font.family'] = 'sans-serif'
+        if metric_name == "mlu":
+            data = avg_mlu
+        if metric_name == "delay":
+            data = avg_delay
+        plt.bar(label_name, data, width=0.5)
+        if metric_name == "mlu":
+            plt.title(
+                r'Average load balancing performance ratio ($\mathrm{{PR_U}}$) among different schemes in one week',
+                fontsize=10)
+            plt.ylabel(r'$\mathrm{{PR_U}}$', weight="bold", fontsize=10)
+            plt.ylim(0.6, 1)
+            plt.legend()
+        if metric_name == "delay":
+            plt.title(
+                r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
+                fontsize=10)
+            plt.ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=10)
+            plt.ylim(0.6, 0.9)
+            plt.legend()
+        plt.show()
+
+    def pr_bar_plot_week_integrate(avg_mlu=None, avg_delay=None, label_name=None):
+        fig_size = (18, 6)
+        fig, axes = plt.subplots(1, 2, figsize=fig_size, sharey=False, gridspec_kw={'width_ratios': [1, 1]})
+        plt.rcParams['font.family'] = 'sans-serif'
+        data1 = avg_mlu
+        data2 = avg_delay
+        width = 0.5
+        axes[0].bar(label_name, data1, width=width)
+        axes[1].bar(label_name, data2, width=width)
+
+        axes[0].set_title(
+            r'Average load balancing performance ratio ($\mathrm{{PR_U}}$) among different schemes in one week',
+            fontsize=10)
+        axes[0].set_ylabel(r'$\mathrm{{PR_U}}$', weight="bold", fontsize=12)
+        axes[0].set_ylim(0.6, 1)
+        axes[1].set_title(
+            r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
+            fontsize=10)
+        axes[1].set_ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=12)
+        axes[1].set_ylim(0.6, 0.85)
+        plt.show()
+        fig.savefig(os.getcwd() + '/result/img/pr-mlu-delay-'+ label_name[0] + '.png', format='png')
+
+    def pr_bar_plot_day(metric_name, day_avg_mlu_save=None, day_avg_delay_save=None, label_name=None):
+        figsize = (15, 8)
+        fig = plt.figure(figsize=figsize)
+        plt.rcParams['font.family'] = 'sans-serif'
+
+        if metric_name == "mlu":
+            data = np.array(day_avg_mlu_save).transpose()
+        if metric_name == "delay":
+            data = np.array(day_avg_delay_save).transpose()
+
+        xvals, yvals, zvals, mvals, nvals = [data[i].tolist() for i in range(5)]
+        N = len(xvals)
+        ind = np.arange(N)
+        width = 0.15
+        zorder = 3
+
+        plt.bar(ind, xvals, width, color='orangered', label=label_name[0], zorder=zorder)
+        plt.bar(ind + width, yvals, width, color='y', label=label_name[1], zorder=zorder)
+        plt.bar(ind + width * 2, zvals, width, color='cyan', label=label_name[2], zorder=zorder)
+        plt.bar(ind + width * 3, mvals, width, color='royalblue', label=label_name[3], zorder=zorder)
+        plt.bar(ind + width * 4, nvals, width, color='violet', label=label_name[4], zorder=zorder)
+
+        plt.xlabel("Days", loc="center", fontweight='bold', fontsize=16)
+        plt.xticks(ind + width, [i + 1 for i in range(len(xvals))], fontsize=13)
+
+        if metric_name == "mlu":
+            plt.title(
+                r'Average load balancing performance ratio ($\mathrm{{PR_U}}$) among different schemes in one week',
+                fontsize=15)
+            plt.ylabel(r'$\mathrm{{PR_U}}$', weight="bold", fontsize=16)
+            plt.ylim(0.6, 1)
+            plt.legend()
+            plt.show()
+            fig.savefig(os.getcwd() + '/result/img/day-pr-mlu-' + label_name[0] + '.png', format='png')
+
+        if metric_name == "delay":
+            plt.title(
+                r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
+                fontsize=15)
+            plt.ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=16)
+            plt.ylim(0.6, 0.9)
+            plt.legend()
+            plt.show()
+            fig.savefig(os.getcwd() + '/result/img/day-pr-delay-' + label_name[0] + '.png', format='png')
+
+    if False:
+        pr_bar_plot_week('mlu', avg_mlu=avg_mlu)
+        pr_bar_plot_week('delay', avg_delay=avg_delay)
+
+    pr_bar_plot_week_integrate(avg_mlu=avg_mlu, avg_delay=avg_delay, label_name=label_name)
+    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name)
+    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name)
 
 
 def pr_plot(file, scheme='mlu'):
@@ -195,22 +304,32 @@ def cdf_plot_v2(file, scheme=None):
 
 if __name__ == '__main__':
     # file = 'result/result-actor-critic-baseline.csv'
+    # file = 'result/result-actor-critic-baseline-ckpt7.csv'
 
     # file = 'result/result-actor-critic-alpha+.csv'
     # file = 'result/result-actor-critic-beta.csv'
     # file = 'result/result-actor-critic-beta+.csv'
+
     # file = 'result/result-actor-critic-beta++.csv' # *
-    file = 'result/result-actor-critic-beta++++.csv'
+    # file = 'result/result-actor-critic-beta++ckpt27.csv'
+    file = 'result/result-actor-critic-beta++ckpt91.csv'
+
+    # file = 'result/result-actor-critic-beta++++.csv'
+    # file = 'result/result-actor-critic-beta++++ckpt9.csv'
 
     # file = 'result/result-actor-critic-debug++.csv'
 
     # file = 'result/result-pure-policy-baseline.csv'
     # file = 'result/result-pure-policy-alpha+.csv'
 
-    data_analyzer(file, central=True)
+    label_name = ['Baseline', 'TopK Critical', 'TopK Centralized', 'TopK', 'ECMP']
+    our_method = 'Method Beta++'
+    label_name[0] = our_method
+
+    data_analyzer(file, central=True, label_name=label_name)
     exit(1)
+
     cdf_plot_v2(file)
-    # exit(1)
     cdf_plot(file, scheme='mlu')
     cdf_plot(file, scheme='delay')
 
