@@ -235,7 +235,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                         a = np.random.choice(nf, 1)
                     a_batch.append(a)
 
-        if config.scheme == 'beta++++':
+        if config.scheme == 'beta++++' or config.scheme == 'betas++++':
             # todo
             tm = game.traffic_matrices[tm_idx]
             f = {}
@@ -261,10 +261,12 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             for a in nf_action:
                 a_batch.append(a)
 
-
         if config.scheme == 'delta':
-            #todo
             cf_space = action_space
+
+            # todo
+            # game.max_moves = int(len(cf_space) * (config.max_moves/100.))
+
             cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
             for a in cf_action:
                 a_batch.append(a)
@@ -303,6 +305,8 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             reward = game.reward_beta(tm_idx, actions, action_space, pairs_mapper)
         elif config.scheme in ['beta++', 'delta']:
             reward = game.reward(tm_idx, cf_action)
+        elif config.scheme in ['betas++++']:
+            reward = game.reward(tm_idx, a_batch)
         else:
             reward = game.reward(tm_idx, actions)
 
@@ -362,7 +366,7 @@ def main(_):
     experience_queues = []  # experience pool
 
     if FLAGS.central_flow_included:
-        centralized_links, _, action_space = utility(config=config).\
+        _, centralized_links, _, action_space = utility(config=config).\
             scaling_action_space(central_influence=config.central_influence, print_=False)
 
         cf_pair_idx_to_sd = [env.pair_idx_to_sd[p] for p in action_space]

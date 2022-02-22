@@ -48,9 +48,10 @@ class Game(object):
         self.pair_links = [(pr, e[0], e[1]) for pr in self.lp_pairs for e in self.lp_links]
 
         self.load_multiplier = {}
+        self.link_centrality_mapper, self.topk_centralized_links, _, _ = utility(config=config).scaling_action_space()
 
         if config.partial_tm_zeroing:
-            _, self.zeroing_position, _ = utility(config=config).scaling_action_space()
+            _, _, self.zeroing_position, _ = utility(config=config).scaling_action_space()
             # print('TM zero position: {}'.format(self.zero_position))
 
     def generate_inputs(self, config, normalization=True):
@@ -77,6 +78,9 @@ class Game(object):
     def get_topK_flows(self, tm_idx, pairs):
         tm = self.traffic_matrices[tm_idx]
         f = {}
+
+        # pairs = [i for i in range(self.num_pairs)]
+
         for p in pairs:
             s, d = self.pair_idx_to_sd[p]
             f[p] = tm[s][d]
@@ -89,7 +93,7 @@ class Game(object):
 
         return cf
 
-    def get_topK_flows_beta(self, config, tm_idx, pairs, max_move_multiplier):
+    def get_topK_flows_with_multiplier(self, config, tm_idx, pairs, max_move_multiplier):
         tm = self.traffic_matrices[tm_idx]
         f = {}
         for p in pairs:
@@ -165,7 +169,7 @@ class Game(object):
             ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (
             cf_potential, self.max_moves, critical_links))
 
-        return self.get_topK_flows_beta(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
+        return self.get_topK_flows_with_multiplier(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
 
     def get_critical_topK_flows_beta2(self, config, tm_idx, central_flow_space, critical_links=5, multiplier=1):
         link_loads = self.ecmp_traffic_distribution(tm_idx)
@@ -181,7 +185,7 @@ class Game(object):
             ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (
             cf_potential, self.max_moves, critical_links))
 
-        return self.get_topK_flows_beta(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
+        return self.get_topK_flows_with_multiplier(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
 
     def get_central_critical_topK_flows(self, tm_idx, central_flow_idx, critical_links=5):
         link_loads = self.ecmp_traffic_distribution(tm_idx)
@@ -200,7 +204,7 @@ class Game(object):
         return self.get_topK_flows(tm_idx, cf_potential)
 
     def get_central_topK_flows(self, tm_idx, centralized_links, selected_centralized_links=5):
-        # todo
+
         centralized_link_indexes = []
         cf_potential = []
 
@@ -219,16 +223,32 @@ class Game(object):
 
         return self.get_topK_flows(tm_idx, cf_potential)
 
-    def get_topk_central_flows(self, tm_idx, central_link_degree, central_flows_nums):
-        # todo
-        flow_center_degree = []
+    def get_topk_central_flows(self, tm_idx, link_centerality_degree_mapper, topk_central_links, central_flows_nums, central_limit=False):
+
+        if central_limit:
+            # todo
+
+            temp = {}
+            for link in link_centerality_degree_mapper:
+                if link in topk_central_links:
+                    temp.update({link:link_centerality_degree_mapper[link]})
+            print(link_centerality_degree_mapper)
+            link_centerality_degree_mapper = temp
+            print(link_centerality_degree_mapper)
+
+        flow_centerality_mapper = [0]*self.num_pairs
         for pair_idx in range(self.num_pairs):
-            for link in self.shortest_paths_link[pair_idx]:
-                flow_center_degree[pair_idx] += central_link_degree[link]
+            for path_links in self.shortest_paths_link[pair_idx]:
+                for link in path_links:
+                    flow_centerality_mapper[pair_idx] += link_centerality_degree_mapper[self.link_idx_to_sd[link]]
 
-        sorted_f = sorted(flow_center_degree.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
+        flows_idx = [i for i in range(self.num_pairs)]
+        flow_centerality_mapper = dict(zip(flows_idx, flow_centerality_mapper))
 
-        return sorted_f[:central_flows_nums]
+        sorted_f = sorted(flow_centerality_mapper.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
+
+        cf = [item[0] for item in sorted_f[:central_flows_nums]]
+        return cf
 
     def eval_ecmp_traffic_distribution(self, tm_idx, eval_delay=False):
         eval_link_loads = self.ecmp_traffic_distribution(tm_idx)
@@ -557,7 +577,7 @@ class CFRRL_Game(Game):
         self.project_name = config.project_name
         # action space dimension
         if config.scheme in ['debug+','debug++','debug+++']:
-            _, _, action_space = utility(config=config).scaling_action_space(central_influence=config.central_influence)
+            _, _, _, action_space = utility(config=config).scaling_action_space(central_influence=config.central_influence)
             self.action_dim = len(action_space)
         else:
             self.action_dim = env.num_pairs
@@ -630,10 +650,14 @@ class CFRRL_Game(Game):
         crit_mlu, crit_delay = self.eval_critical_flow_and_ecmp(tm_idx, crit_topk, solution, eval_delay=eval_delay)
 
         if central:
-            Topk_centralized_links =[(6, 5), (5, 6), (6, 3), (11, 8), (9, 3), (11, 1), (5, 2), (8, 2), (10, 3), (3, 6)]
-            centralized_topk = self.get_central_topK_flows(tm_idx,centralized_links=Topk_centralized_links)
+            centralized_topk = self.get_central_topK_flows(tm_idx,centralized_links=self.topk_centralized_links)
             _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, centralized_topk)
             central_mlu, central_delay = self.eval_critical_flow_and_ecmp(tm_idx, centralized_topk, solution, eval_delay=eval_delay)
+
+            topk_centralized = self.get_topk_central_flows(tm_idx, self.link_centrality_mapper, self.topk_centralized_links, self.max_moves ,central_limit=False)
+            _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, topk_centralized)
+            central_mlu2, central_delay2 = self.eval_critical_flow_and_ecmp(tm_idx, topk_centralized, solution, eval_delay=eval_delay)
+
 
         topk = self.get_topK_flows(tm_idx, self.lp_pairs)
         _, solution = self.optimal_routing_mlu_critical_pairs(tm_idx, topk)
@@ -652,6 +676,9 @@ class CFRRL_Game(Game):
             norm_central_mlu = optimal_mlu / central_mlu
             line += str(norm_central_mlu) + ', ' + str(central_mlu) + ', '
 
+            norm_central_mlu2 = optimal_mlu / central_mlu2
+            line += str(norm_central_mlu2) + ', ' + str(central_mlu2) + ', '
+
         norm_topk_mlu = optimal_mlu / topk_mlu
         line += str(norm_topk_mlu) + ', ' + str(topk_mlu) + ', '
 
@@ -668,6 +695,9 @@ class CFRRL_Game(Game):
 
             if central:
                 line += str(optimal_delay / central_delay) + ', '
+
+                line += str(optimal_delay / central_delay2) + ', '
+
 
             line += str(optimal_delay / topk_delay) + ', '
             line += str(optimal_delay / optimal_mlu_delay) + ', '

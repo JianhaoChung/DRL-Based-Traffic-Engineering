@@ -1,5 +1,6 @@
 class NetworkConfig(object):
-    scale = 100
+    # scale = 100
+    scale = 50
     max_step = 1000 * scale
     initial_learning_rate = 0.0001
     learning_rate_decay_rate = 0.96
@@ -43,7 +44,8 @@ class Config(NetworkConfig):
     partial_tm_zeroing = False  # False by default
     # partial_tm_zeroing = True
 
-    suffix = ['baseline', 'alpha', 'alpha+', 'beta', 'beta+', 'beta++', 'beta+++', 'betas+++'  'beta++++', 'delta']
+    suffix = ['baseline', 'alpha', 'alpha+', 'beta', 'beta+', 'beta++', 'beta+++', 'betas+++', 'beta++++',
+              'delta']
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
     scheme = model_name_suffix = suffix[-2]

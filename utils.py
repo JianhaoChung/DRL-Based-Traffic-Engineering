@@ -89,18 +89,21 @@ class utility:
                                  reverse=True)
         self.topk_centralized_links = [self.link_sets[idx] for idx in sorted_link_idx[:self.central_links_nums]]
 
+        link_centrality_mapper = {}
+        for idx, link_count in enumerate(self.path_links_counter):
+            link_centrality_mapper[self.link_sets[idx]] = link_count
+
         if print_:
             # print(sorted_link_idx)
             print("Topo link and its count in the shortest paths of OD flows: ", end=' ')
-            for idx, link_count in enumerate(self.path_links_counter):
-                print([self.link_sets[idx], link_count], end=", ")
-
+            print(link_centrality_mapper)
             print('\nTopk centralized links: {}'.format(self.topk_centralized_links))
+        return link_centrality_mapper
 
     def scaling_action_space(self, central_influence=1, print_=False):
         self.calculate_linksets()
         self.calcualte_shortest_paths_links()
-        self.calcualte_sorted_link_centralization(print_)
+        link_centrality_mapper = self.calcualte_sorted_link_centralization(print_)
         self.shortest_path_tag = [0 for i in range(len(self.shortest_paths))]
         action_space = []
 
@@ -119,9 +122,11 @@ class utility:
         partial_tm_zeroing = [pair for idx, pair in enumerate(self.pair_idx_to_sd) if self.shortest_path_tag[idx] == 0]
 
         if print_:
-            print("\nTotal number of selected centralized flows: {}\nIndex of OD flows to select critical flows: {}".format(len(action_space), action_space))
+            print(
+                "\nTotal number of selected centralized flows: {}\nIndex of OD flows to select critical flows: {}".format(
+                    len(action_space), action_space))
 
-        return self.topk_centralized_links, partial_tm_zeroing, action_space
+        return link_centrality_mapper, self.topk_centralized_links, partial_tm_zeroing, action_space
 
 
 if __name__ == '__main__':

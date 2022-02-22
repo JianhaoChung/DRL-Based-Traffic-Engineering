@@ -184,6 +184,7 @@ class Network:
             # exit(1)
         else:
             checkpoint = self.ckpt_dir + '/' + checkpoint
+            print(checkpoint)
         self.ckpt.restore(checkpoint).expect_partial()
         if checkpoint:
             step = int(self.ckpt.step)
