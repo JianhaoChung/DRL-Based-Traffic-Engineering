@@ -169,34 +169,40 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             actions = random_state.choice(game.action_dim, game.max_moves, p=policy, replace=False)
 
         if config.scheme == 'baseline':
-            # *** Scheme Baseline ***#
             for a in actions:
                 a_batch.append(a)
 
-        if config.scheme == 'alpha+':
-
-            # *** Scheme 1: Select critical flows from partial OD flows whose shortest path include centralized links
-
+        if config.scheme == 'alpha':
             for a in actions:
                 if a not in action_space:
                     a_batch.append(0)
                 else:
                     a_batch.append(a)
 
+        if config.scheme == 'alpha+':
+            cf_space = game.get_critical_topK_flows_with_multiplier(config, tm_idx, critical_links=10, sampling=False)
+            for a in actions:
+                if a not in cf_space:
+                    a_batch.append(0)
+                else:
+                    a_batch.append(a)
+
+        if config.scheme == 'alpha++':
+            cf_space = game.get_topK_flows_with_multiplier(config, tm_idx, topK_num=game.max_moves*7)
+            for a in actions:
+                if a not in cf_space:
+                    a_batch.append(0)
+                else:
+                    a_batch.append(a)
+
         if config.scheme == 'beta' and config.central_influence == 1:
-
-            # *** Scheme 2.0: Select critical flows from the intersection between cf_potetial and OD flows whose shortest path include centralized links,
-            # cf_potetial include top K flows calculated by link_load/link_capacity, which k equals to the amount of centralized OD flows
-
             cf = game.get_critical_topK_flows_beta2(config, tm_idx, action_space, critical_links=10, multiplier=5)
 
         if config.scheme == 'beta+' and config.central_influence == 2:
-            # Scheme 2.1
             cf = game.get_critical_topK_flows_beta2(config, tm_idx, action_space, critical_links=10, multiplier=3)
 
         if config.scheme == 'beta++':
-            cf_space = game.get_critical_topK_flows_beta(config, tm_idx, critical_links=5, multiplier=2)
-            # print(cf_space)
+            cf_space = game.get_critical_topK_flows_with_multiplier(config, tm_idx, critical_links=5, multiplier=2)
             cf_action = np.random.choice(cf_space, game.max_moves, replace=False)
             for a in cf_action:
                 a_batch.append(a)
@@ -248,7 +254,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             for i in range(game.max_moves):
                 nf.append(sorted_f[i][0])
 
-            cf_space = game.get_critical_topK_flows_beta(config, tm_idx, critical_links=5, multiplier=2)
+            cf_space = game.get_critical_topK_flows_with_multiplier(config, tm_idx, critical_links=5, multiplier=2)
 
             nf_count = 0
             for a in actions:
@@ -291,22 +297,11 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             for a in actions:
                 a_batch.append(action_space.index(a))
 
-            if False:
-                cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38,
-                      40, 43, 46, 47, 48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76,
-                      79, 80, 82, 83, 84, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109,
-                      110, 111, 112, 113, 115, 116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
-                actions = random_state.choice(cf, game.max_moves, p=policy, replace=False)
-                for a in actions:
-                    a_batch.append(cf.index(a))
-
         # Reward
         if config.scheme in ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']:
             reward = game.reward_beta(tm_idx, actions, action_space, pairs_mapper)
         elif config.scheme in ['beta++', 'delta']:
             reward = game.reward(tm_idx, cf_action)
-        elif config.scheme in ['betas++++']:
-            reward = game.reward(tm_idx, a_batch)
         else:
             reward = game.reward(tm_idx, actions)
 

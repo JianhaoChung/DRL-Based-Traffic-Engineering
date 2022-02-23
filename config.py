@@ -44,11 +44,13 @@ class Config(NetworkConfig):
     partial_tm_zeroing = False  # False by default
     # partial_tm_zeroing = True
 
-    suffix = ['baseline', 'alpha', 'alpha+', 'beta', 'beta+', 'beta++', 'beta+++', 'betas+++', 'beta++++',
+    suffix = ['baseline', 'alpha',  'alpha+', 'alpha++', 'beta',
+              'beta+', 'beta++', 'beta+++', 'betas+++', 'beta++++',
               'delta']
+
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
-    scheme = model_name_suffix = suffix[-2]
+    scheme = model_name_suffix = suffix[2]
     # scheme = model_name_suffix =debug_suffix[-1]
 
     central_links_nums = 10

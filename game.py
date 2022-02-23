@@ -93,18 +93,31 @@ class Game(object):
 
         return cf
 
-    def get_topK_flows_with_multiplier(self, config, tm_idx, pairs, max_move_multiplier):
+    def get_topK_flows_with_multiplier(self, config, tm_idx, pairs=None, max_move_multiplier=1, sampling=True, topK_num=None):
         tm = self.traffic_matrices[tm_idx]
         f = {}
+
+        if topK_num is not None:
+            pairs = [i for i in range(self.num_pairs)]
+
         for p in pairs:
             s, d = self.pair_idx_to_sd[p]
             f[p] = tm[s][d]
 
         sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]), reverse=True)
-        cf = []
 
-        for i in range(self.max_moves*max_move_multiplier):
-            cf.append(sorted_f[i][0])
+        cf = []
+        if sampling:
+            if topK_num is not None:
+                for i in range(topK_num):
+                    cf.append(sorted_f[i][0])
+            else:
+                for i in range(self.max_moves*max_move_multiplier):
+                    cf.append(sorted_f[i][0])
+        if not sampling:
+            for i in range(len(sorted_f)):
+                cf.append(sorted_f[i][0])
+
         return cf
 
     def get_ecmp_next_hops(self):
@@ -155,7 +168,7 @@ class Game(object):
 
         return self.get_topK_flows(tm_idx, cf_potential)
 
-    def get_critical_topK_flows_beta(self, config, tm_idx, critical_links=5, multiplier=1):
+    def get_critical_topK_flows_with_multiplier(self, config, tm_idx, critical_links=5, multiplier=1, sampling=True):
         link_loads = self.ecmp_traffic_distribution(tm_idx)
         critical_link_indexes = np.argsort(-(link_loads / self.link_capacities))[:critical_links]
         cf_potential = []
@@ -169,7 +182,8 @@ class Game(object):
             ("cf_potential(%d) < max_move(%d), please increse critical_links(%d)" % (
             cf_potential, self.max_moves, critical_links))
 
-        return self.get_topK_flows_with_multiplier(config, tm_idx, cf_potential, max_move_multiplier=multiplier)
+        return self.get_topK_flows_with_multiplier(config, tm_idx, cf_potential,
+                                                   max_move_multiplier=multiplier, sampling=sampling)
 
     def get_critical_topK_flows_beta2(self, config, tm_idx, central_flow_space, critical_links=5, multiplier=1):
         link_loads = self.ecmp_traffic_distribution(tm_idx)

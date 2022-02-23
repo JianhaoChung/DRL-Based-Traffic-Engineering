@@ -102,7 +102,7 @@ def data_analyzer(file, label_name):
             r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
             fontsize=10)
         axes[1].set_ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=12)
-        axes[1].set_ylim(0.3, 0.85)
+        axes[1].set_ylim(0.3, 0.86)
         axes[1].tick_params(axis='x', rotation=20)
         plt.show()
         fig.savefig(os.getcwd() + '/result/img/pr-mlu-delay-' + label_name[0] + '.png', format='png')
@@ -197,6 +197,7 @@ def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False):
     plt.legend(loc='lower right')
     plt.xlabel("Traffic Matrix index")
     plt.xlim(0, 288)
+    # plt.ylim(0.3, 1)
     plt.ylabel(y_label)
 
     if scheme == 'mlu':
@@ -310,29 +311,22 @@ def cdf_plot_v2(file, scheme=None):
 
 
 if __name__ == '__main__':
-    # file = 'result/result-actor-critic-baseline.csv'
+
     # file = 'result/result-actor-critic-baseline-ckpt7.csv'
 
-    # file = 'result/result-actor-critic-alpha+.csv'
-    # file = 'result/result-actor-critic-beta.csv'
-    # file = 'result/result-actor-critic-beta+.csv'
+    file = 'result/result-actor-critic-alpha-ckpt10.csv'
 
-    # file = 'result/result-actor-critic-beta++.csv' # *
-    file = 'result/result-actor-critic-beta++ckpt27.csv'
-    # file = 'result/result-actor-critic-beta++ckpt91.csv'
+    # file = 'result/result-actor-critic-beta++ckpt27.csv'
 
-    # file = 'result/result-actor-critic-beta++++.csv'
     # file = 'result/result-actor-critic-beta++++ckpt9.csv'
 
     # file = 'result/result-actor-critic-delta-ckpt5.csv'
-
-    # file = 'result/result-actor-critic-debug++.csv'
 
     # file = 'result/result-pure-policy-baseline.csv'
     # file = 'result/result-pure-policy-alpha+.csv'
 
     label_name = ['Baseline', 'TopK Critical', 'Centralized-TopK', 'TopK-Centralized', 'TopK', 'ECMP']
-    our_method = 'Beta++'
+    our_method = 'Alpha'
     label_name[0] = our_method
 
     data_analyzer(file, label_name=label_name)
