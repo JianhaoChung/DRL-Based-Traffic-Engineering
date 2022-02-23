@@ -1,0 +1,311 @@
+/home/scnu-go/anaconda3/envs/tensorflow2-cpu/bin/python3.8 /home/scnu-go/ProjectsSCNU/CFR-RL/train.py
+2022-01-28 13:05:43.688992: I tensorflow/stream_executor/platform/default/dso_loader.cc:44] Successfully opened dynamic library libcuda.so.1
+[*] Loading topology... ./data/Abilene
+[*] Loading shortest paths... ./data/Abilene_shortest_paths
+pairs: 132, nodes: 12, links: 30
+
+[*] Loading traffic matrices... ./data/AbileneTM
+2022-01-28 13:05:43.712035: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:981] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2022-01-28 13:05:43.712665: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1561] Found device 0 with properties:
+pciBusID: 0000:02:00.0 name: GeForce GTX 1080 Ti computeCapability: 6.1
+coreClock: 1.6325GHz coreCount: 28 deviceMemorySize: 10.92GiB deviceMemoryBandwidth: 451.17GiB/s
+2022-01-28 13:05:43.712707: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:981] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2022-01-28 13:05:43.712987: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1561] Found device 1 with properties:
+pciBusID: 0000:01:00.0 name: GeForce GTX 1080 computeCapability: 6.1
+coreClock: 1.8475GHz coreCount: 20 deviceMemorySize: 7.93GiB deviceMemoryBandwidth: 298.32GiB/s
+2022-01-28 13:05:43.713099: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcudart.so.10.1'; dlerror: libcudart.so.10.1: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713138: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcublas.so.10'; dlerror: libcublas.so.10: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713174: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcufft.so.10'; dlerror: libcufft.so.10: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713209: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcurand.so.10'; dlerror: libcurand.so.10: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713242: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcusolver.so.10'; dlerror: libcusolver.so.10: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713276: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcusparse.so.10'; dlerror: libcusparse.so.10: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713310: W tensorflow/stream_executor/platform/default/dso_loader.cc:55] Could not load dynamic library 'libcudnn.so.7'; dlerror: libcudnn.so.7: cannot open shared object file: No such file or directory
+2022-01-28 13:05:43.713316: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1598] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+Traffic matrices dims: [2016, 12, 12]
+
+Input dims : (12, 12, 1)
+Max moves : 13
+Agent num: 8, iter num: 10
+
+Total number and pair_idx of OD flows space to select critical flows as follow:   91 | [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47, 48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76, 79, 80, 82, 83, 84, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 115, 116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
+2022-01-28 13:05:43.878301: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.884818: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.885151: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9930000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.885177: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.887103: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.887404: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.890296: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.896145: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.897442: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.897744: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9928000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.897760: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.899562: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.899908: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.905982: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.906426: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9930000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.906450: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.911208: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.911489: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9930000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.911504: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.911846: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.913982: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.915910: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9934000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.915976: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.916444: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.918190: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.918324: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.921513: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.921656: I tensorflow/core/platform/cpu_feature_guard.cc:143] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2022-01-28 13:05:43.930678: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.930678: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.930919: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f994c000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.930935: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.930990: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f9934000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.931006: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.932756: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.932881: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+2022-01-28 13:05:43.953114: I tensorflow/core/platform/profile_utils/cpu_utils.cc:102] CPU Frequency: 4200000000 Hz
+2022-01-28 13:05:43.953517: I tensorflow/compiler/xla/service/service.cc:168] XLA service 0x7f992c000b60 initialized for platform Host (this does not guarantee that XLA will be used). Devices:
+2022-01-28 13:05:43.953540: I tensorflow/compiler/xla/service/service.cc:176]   StreamExecutor device (0): Host, Default Version
+2022-01-28 13:05:43.957108: E tensorflow/stream_executor/cuda/cuda_driver.cc:1116] could not retrieve CUDA device count: CUDA_ERROR_NOT_INITIALIZED: initialization error
+Model: "model"
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to
+==================================================================================================
+input_1 (InputLayer)            [(None, 12, 12, 1)]  0
+__________________________________________________________________________________________________
+conv2d (Conv2D)                 (None, 12, 12, 128)  1280        input_1[0][0]
+__________________________________________________________________________________________________
+leaky_re_lu (LeakyReLU)         (None, 12, 12, 128)  0           conv2d[0][0]
+__________________________________________________________________________________________________
+flatten (Flatten)               (None, 18432)        0           leaky_re_lu[0][0]
+__________________________________________________________________________________________________
+conv2d_1 (Conv2D)               (None, 12, 12, 128)  1280        input_1[0][0]
+__________________________________________________________________________________________________
+dense (Dense)                   (None, 128)          2359424     flatten[0][0]
+__________________________________________________________________________________________________
+leaky_re_lu_2 (LeakyReLU)       (None, 12, 12, 128)  0           conv2d_1[0][0]
+__________________________________________________________________________________________________
+leaky_re_lu_1 (LeakyReLU)       (None, 128)          0           dense[0][0]
+__________________________________________________________________________________________________
+flatten_1 (Flatten)             (None, 18432)        0           leaky_re_lu_2[0][0]
+__________________________________________________________________________________________________
+dense_1 (Dense)                 (None, 132)          17028       leaky_re_lu_1[0][0]
+__________________________________________________________________________________________________
+dense_2 (Dense)                 (None, 128)          2359424     flatten_1[0][0]
+__________________________________________________________________________________________________
+tf_op_layer_Tanh (TensorFlowOpL [(None, 132)]        0           dense_1[0][0]
+__________________________________________________________________________________________________
+leaky_re_lu_3 (LeakyReLU)       (None, 128)          0           dense_2[0][0]
+__________________________________________________________________________________________________
+tf_op_layer_Mul (TensorFlowOpLa [(None, 132)]        0           tf_op_layer_Tanh[0][0]
+__________________________________________________________________________________________________
+dense_3 (Dense)                 (None, 1)            129         leaky_re_lu_3[0][0]
+==================================================================================================
+Total params: 4,738,565
+Trainable params: 4,738,565
+Non-trainable params: 0
+__________________________________________________________________________________________________
+Initializing from scratch.
+  1%|▏                       | 1000/100000 [12:25<20:30:40,  1.34it/s]Saved checkpoint for step 1001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-1
+lr:0.000092, value loss:3.124877, avg reward:17.638661, avg entropy:0.559795
+  2%|▍                       | 2000/100000 [24:48<20:41:02,  1.32it/s]Saved checkpoint for step 2001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-2
+lr:0.000085, value loss:3.634265, avg reward:18.588636, avg entropy:0.789509
+  3%|▋                       | 3000/100000 [37:11<20:11:19,  1.33it/s]Saved checkpoint for step 3001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-3
+lr:0.000078, value loss:2.085753, avg reward:18.490632, avg entropy:0.855094
+  4%|▉                       | 4000/100000 [49:29<19:53:14,  1.34it/s]Saved checkpoint for step 4001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-4
+lr:0.000072, value loss:1.209092, avg reward:18.701403, avg entropy:0.559945
+  5%|█                     | 5000/100000 [1:01:48<19:38:57,  1.34it/s]Saved checkpoint for step 5001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-5
+lr:0.000066, value loss:1.991856, avg reward:18.614380, avg entropy:0.605470
+  6%|█▎                    | 6000/100000 [1:14:07<19:26:38,  1.34it/s]Saved checkpoint for step 6001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-6
+lr:0.000061, value loss:2.128674, avg reward:18.548722, avg entropy:0.603502
+  7%|█▌                    | 7000/100000 [1:26:27<19:28:59,  1.33it/s]Saved checkpoint for step 7001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-7
+lr:0.000056, value loss:1.872990, avg reward:19.093853, avg entropy:0.601469
+  8%|█▊                    | 8000/100000 [1:38:48<19:14:48,  1.33it/s]Saved checkpoint for step 8001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-8
+lr:0.000052, value loss:0.721172, avg reward:18.905353, avg entropy:0.799752
+  9%|█▉                    | 9000/100000 [1:51:08<19:15:40,  1.31it/s]Saved checkpoint for step 9001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-9
+lr:0.000048, value loss:1.386135, avg reward:19.276112, avg entropy:0.724786
+ 10%|██                   | 10000/100000 [2:03:28<18:36:04,  1.34it/s]Saved checkpoint for step 10001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-10
+lr:0.000044, value loss:1.269075, avg reward:18.910671, avg entropy:0.908163
+ 11%|██▎                  | 11000/100000 [2:15:55<18:37:48,  1.33it/s]Saved checkpoint for step 11001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-11
+lr:0.000041, value loss:1.969734, avg reward:18.677644, avg entropy:0.690590
+ 12%|██▌                  | 12000/100000 [2:28:20<18:19:29,  1.33it/s]Saved checkpoint for step 12001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-12
+lr:0.000038, value loss:1.225711, avg reward:18.629463, avg entropy:0.988855
+ 13%|██▋                  | 13000/100000 [2:40:48<18:10:25,  1.33it/s]Saved checkpoint for step 13001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-13
+lr:0.000035, value loss:1.226098, avg reward:18.838489, avg entropy:0.853503
+ 14%|██▉                  | 14000/100000 [2:53:14<18:02:59,  1.32it/s]Saved checkpoint for step 14001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-14
+lr:0.000032, value loss:1.576450, avg reward:18.818265, avg entropy:0.758530
+ 15%|███▏                 | 15000/100000 [3:05:36<17:37:28,  1.34it/s]Saved checkpoint for step 15001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-15
+lr:0.000029, value loss:2.028067, avg reward:19.057110, avg entropy:0.808232
+ 16%|███▎                 | 16000/100000 [3:18:01<17:38:25,  1.32it/s]Saved checkpoint for step 16001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-16
+lr:0.000027, value loss:1.521302, avg reward:19.306326, avg entropy:0.767295
+ 17%|███▌                 | 17000/100000 [3:30:27<17:12:43,  1.34it/s]Saved checkpoint for step 17001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-17
+lr:0.000025, value loss:1.478866, avg reward:18.966556, avg entropy:1.096116
+ 18%|███▊                 | 18000/100000 [3:43:01<17:13:43,  1.32it/s]Saved checkpoint for step 18001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-18
+lr:0.000023, value loss:1.180168, avg reward:18.653615, avg entropy:1.166417
+ 19%|███▉                 | 19000/100000 [3:55:28<16:56:28,  1.33it/s]Saved checkpoint for step 19001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-19
+lr:0.000021, value loss:0.857303, avg reward:19.119786, avg entropy:1.091973
+ 20%|████▏                | 20000/100000 [4:07:50<17:02:59,  1.30it/s]Saved checkpoint for step 20001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-20
+lr:0.000020, value loss:1.829138, avg reward:18.824467, avg entropy:1.120525
+ 21%|████▍                | 21000/100000 [4:20:10<16:19:55,  1.34it/s]Saved checkpoint for step 21001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-21
+lr:0.000018, value loss:1.237747, avg reward:18.859658, avg entropy:0.979990
+ 22%|████▌                | 22000/100000 [4:32:33<16:20:37,  1.33it/s]Saved checkpoint for step 22001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-22
+lr:0.000017, value loss:1.976757, avg reward:19.043283, avg entropy:1.081011
+ 23%|████▊                | 23000/100000 [4:44:57<15:55:40,  1.34it/s]Saved checkpoint for step 23001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-23
+lr:0.000015, value loss:1.485516, avg reward:18.766615, avg entropy:1.145090
+ 24%|█████                | 24000/100000 [4:57:18<15:42:08,  1.34it/s]Saved checkpoint for step 24001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-24
+lr:0.000014, value loss:0.957360, avg reward:18.629968, avg entropy:1.173281
+ 25%|█████▎               | 25000/100000 [5:09:39<15:48:04,  1.32it/s]Saved checkpoint for step 25001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-25
+lr:0.000013, value loss:1.244336, avg reward:18.405551, avg entropy:1.137213
+ 26%|█████▍               | 26000/100000 [5:22:00<15:19:18,  1.34it/s]Saved checkpoint for step 26001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-26
+lr:0.000012, value loss:1.282570, avg reward:18.918283, avg entropy:1.113687
+ 27%|█████▋               | 27000/100000 [5:34:21<15:07:18,  1.34it/s]Saved checkpoint for step 27001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-27
+lr:0.000011, value loss:1.557915, avg reward:19.220215, avg entropy:1.384415
+ 28%|█████▉               | 28000/100000 [5:46:42<14:56:49,  1.34it/s]Saved checkpoint for step 28001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-28
+lr:0.000010, value loss:1.398614, avg reward:18.869543, avg entropy:1.154341
+ 29%|██████               | 29000/100000 [5:59:03<14:45:19,  1.34it/s]Saved checkpoint for step 29001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-29
+lr:0.000009, value loss:1.311275, avg reward:18.831242, avg entropy:0.950108
+ 30%|██████▎              | 30000/100000 [6:11:24<14:38:45,  1.33it/s]Saved checkpoint for step 30001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-30
+lr:0.000009, value loss:1.773662, avg reward:18.778864, avg entropy:1.158770
+ 31%|██████▌              | 31000/100000 [6:23:45<14:20:37,  1.34it/s]Saved checkpoint for step 31001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-31
+lr:0.000008, value loss:1.286989, avg reward:18.453211, avg entropy:1.166855
+ 32%|██████▋              | 32000/100000 [6:36:06<14:18:47,  1.32it/s]Saved checkpoint for step 32001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-32
+lr:0.000007, value loss:1.987105, avg reward:18.511658, avg entropy:0.854076
+ 33%|██████▉              | 33000/100000 [6:48:27<14:03:41,  1.32it/s]Saved checkpoint for step 33001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-33
+lr:0.000007, value loss:1.714291, avg reward:18.970814, avg entropy:0.922197
+ 34%|███████▏             | 34000/100000 [7:00:47<13:45:10,  1.33it/s]Saved checkpoint for step 34001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-34
+lr:0.000006, value loss:1.332694, avg reward:18.924146, avg entropy:0.867410
+ 35%|███████▎             | 35000/100000 [7:13:07<13:23:02,  1.35it/s]Saved checkpoint for step 35001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-35
+lr:0.000006, value loss:1.217697, avg reward:18.348537, avg entropy:0.958702
+ 36%|███████▌             | 36000/100000 [7:25:27<13:25:31,  1.32it/s]Saved checkpoint for step 36001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-36
+lr:0.000005, value loss:1.306810, avg reward:18.716850, avg entropy:1.010368
+ 37%|███████▊             | 37000/100000 [7:37:49<13:07:20,  1.33it/s]Saved checkpoint for step 37001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-37
+lr:0.000005, value loss:1.047852, avg reward:18.416245, avg entropy:1.145304
+ 38%|███████▉             | 38000/100000 [7:50:11<13:02:18,  1.32it/s]Saved checkpoint for step 38001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-38
+lr:0.000004, value loss:1.340287, avg reward:18.763675, avg entropy:1.306428
+ 39%|████████▏            | 39000/100000 [8:02:33<12:46:03,  1.33it/s]Saved checkpoint for step 39001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-39
+lr:0.000004, value loss:1.676908, avg reward:18.515178, avg entropy:1.331026
+ 40%|████████▍            | 40000/100000 [8:14:56<12:31:50,  1.33it/s]Saved checkpoint for step 40001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-40
+lr:0.000004, value loss:1.659829, avg reward:18.992761, avg entropy:1.131468
+ 41%|████████▌            | 41000/100000 [8:27:19<12:23:47,  1.32it/s]Saved checkpoint for step 41001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-41
+lr:0.000004, value loss:1.616091, avg reward:18.618320, avg entropy:1.025962
+ 42%|████████▊            | 42000/100000 [8:39:43<12:11:04,  1.32it/s]Saved checkpoint for step 42001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-42
+lr:0.000003, value loss:1.213084, avg reward:18.552045, avg entropy:1.151728
+ 43%|█████████            | 43000/100000 [8:52:10<11:57:04,  1.32it/s]Saved checkpoint for step 43001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-43
+lr:0.000003, value loss:1.392500, avg reward:18.876221, avg entropy:1.398263
+ 44%|█████████▏           | 44000/100000 [9:04:32<11:39:08,  1.33it/s]Saved checkpoint for step 44001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-44
+lr:0.000003, value loss:1.106130, avg reward:18.389705, avg entropy:1.515571
+ 45%|█████████▍           | 45000/100000 [9:16:53<11:49:28,  1.29it/s]Saved checkpoint for step 45001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-45
+lr:0.000003, value loss:1.384225, avg reward:18.569265, avg entropy:1.313606
+ 46%|█████████▋           | 46000/100000 [9:29:16<11:15:54,  1.33it/s]Saved checkpoint for step 46001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-46
+lr:0.000002, value loss:1.550838, avg reward:19.264824, avg entropy:1.275901
+ 47%|█████████▊           | 47000/100000 [9:41:41<11:04:40,  1.33it/s]Saved checkpoint for step 47001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-47
+lr:0.000002, value loss:1.479331, avg reward:18.632691, avg entropy:1.189027
+ 48%|██████████           | 48000/100000 [9:54:04<10:49:11,  1.33it/s]Saved checkpoint for step 48001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-48
+lr:0.000002, value loss:1.406315, avg reward:19.038561, avg entropy:1.119454
+ 49%|█████████▊          | 49000/100000 [10:06:25<10:34:57,  1.34it/s]Saved checkpoint for step 49001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-49
+lr:0.000002, value loss:1.864383, avg reward:18.625762, avg entropy:1.111519
+ 50%|██████████          | 50000/100000 [10:18:47<10:20:54,  1.34it/s]Saved checkpoint for step 50001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-50
+lr:0.000002, value loss:1.272920, avg reward:18.847795, avg entropy:1.029623
+ 51%|██████████▏         | 51000/100000 [10:31:09<10:16:36,  1.32it/s]Saved checkpoint for step 51001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-51
+lr:0.000002, value loss:1.829438, avg reward:18.583949, avg entropy:1.202697
+ 52%|██████████▍         | 52000/100000 [10:43:29<10:06:55,  1.32it/s]Saved checkpoint for step 52001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-52
+lr:0.000001, value loss:1.524459, avg reward:18.590865, avg entropy:1.338584
+ 53%|███████████▏         | 53000/100000 [10:55:49<9:44:51,  1.34it/s]Saved checkpoint for step 53001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-53
+lr:0.000001, value loss:2.112108, avg reward:19.396511, avg entropy:1.119525
+ 54%|███████████▎         | 54000/100000 [11:08:09<9:36:04,  1.33it/s]Saved checkpoint for step 54001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-54
+lr:0.000001, value loss:1.313517, avg reward:19.139859, avg entropy:1.244276
+ 55%|███████████▌         | 55000/100000 [11:20:31<9:16:17,  1.35it/s]Saved checkpoint for step 55001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-55
+lr:0.000001, value loss:1.086796, avg reward:19.170489, avg entropy:1.474857
+ 56%|███████████▊         | 56000/100000 [11:32:52<9:04:38,  1.35it/s]Saved checkpoint for step 56001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-56
+lr:0.000001, value loss:1.127110, avg reward:19.030710, avg entropy:1.254896
+ 57%|███████████▉         | 57000/100000 [11:45:13<8:57:19,  1.33it/s]Saved checkpoint for step 57001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-57
+lr:0.000001, value loss:1.251438, avg reward:18.562958, avg entropy:1.334108
+ 58%|████████████▏        | 58000/100000 [11:57:34<8:46:18,  1.33it/s]Saved checkpoint for step 58001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-58
+lr:0.000001, value loss:1.162791, avg reward:18.489732, avg entropy:1.309074
+ 59%|████████████▍        | 59000/100000 [12:09:56<8:29:21,  1.34it/s]Saved checkpoint for step 59001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-59
+lr:0.000001, value loss:1.088095, avg reward:18.780751, avg entropy:1.155522
+ 60%|████████████▌        | 60000/100000 [12:22:17<8:22:31,  1.33it/s]Saved checkpoint for step 60001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-60
+lr:0.000001, value loss:1.475722, avg reward:18.958804, avg entropy:1.239224
+ 61%|████████████▊        | 61000/100000 [12:34:40<8:11:40,  1.32it/s]Saved checkpoint for step 61001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-61
+lr:0.000001, value loss:1.524448, avg reward:18.698062, avg entropy:1.318251
+ 62%|█████████████        | 62000/100000 [12:47:03<7:52:09,  1.34it/s]Saved checkpoint for step 62001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-62
+lr:0.000001, value loss:1.487970, avg reward:18.841325, avg entropy:1.270998
+ 63%|█████████████▏       | 63000/100000 [12:59:25<7:45:13,  1.33it/s]Saved checkpoint for step 63001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-63
+lr:0.000001, value loss:1.124017, avg reward:18.416069, avg entropy:1.064531
+ 64%|█████████████▍       | 64000/100000 [13:11:48<7:34:22,  1.32it/s]Saved checkpoint for step 64001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-64
+lr:0.000001, value loss:1.396521, avg reward:18.411451, avg entropy:1.316954
+ 65%|█████████████▋       | 65000/100000 [13:24:10<7:20:33,  1.32it/s]Saved checkpoint for step 65001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-65
+lr:0.000000, value loss:1.411174, avg reward:18.762494, avg entropy:0.846495
+ 66%|█████████████▊       | 66000/100000 [13:36:34<7:10:00,  1.32it/s]Saved checkpoint for step 66001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-66
+lr:0.000000, value loss:1.208026, avg reward:18.760758, avg entropy:1.223643
+ 67%|██████████████       | 67000/100000 [13:48:58<6:49:41,  1.34it/s]Saved checkpoint for step 67001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-67
+lr:0.000000, value loss:1.308002, avg reward:18.945381, avg entropy:1.001762
+ 68%|██████████████▎      | 68000/100000 [14:01:22<6:40:12,  1.33it/s]Saved checkpoint for step 68001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-68
+lr:0.000000, value loss:1.413785, avg reward:18.631817, avg entropy:1.126763
+ 69%|██████████████▍      | 69000/100000 [14:13:45<6:26:47,  1.34it/s]Saved checkpoint for step 69001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-69
+lr:0.000000, value loss:1.240600, avg reward:18.553754, avg entropy:1.269415
+ 70%|██████████████▋      | 70000/100000 [14:26:10<6:26:51,  1.29it/s]Saved checkpoint for step 70001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-70
+lr:0.000000, value loss:1.947471, avg reward:18.618945, avg entropy:1.121250
+ 71%|██████████████▉      | 71000/100000 [14:38:34<6:05:19,  1.32it/s]Saved checkpoint for step 71001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-71
+lr:0.000000, value loss:1.776011, avg reward:18.548600, avg entropy:1.041302
+ 72%|███████████████      | 72000/100000 [14:50:58<5:50:09,  1.33it/s]Saved checkpoint for step 72001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-72
+lr:0.000000, value loss:1.223929, avg reward:18.312426, avg entropy:1.320794
+ 73%|███████████████▎     | 73000/100000 [15:03:25<5:38:11,  1.33it/s]Saved checkpoint for step 73001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-73
+lr:0.000000, value loss:1.330298, avg reward:18.464907, avg entropy:1.429817
+ 74%|███████████████▌     | 74000/100000 [15:15:51<5:27:07,  1.32it/s]Saved checkpoint for step 74001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-74
+lr:0.000000, value loss:1.629043, avg reward:18.775610, avg entropy:1.396511
+ 75%|███████████████▊     | 75000/100000 [15:28:16<5:11:38,  1.34it/s]Saved checkpoint for step 75001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-75
+lr:0.000000, value loss:0.864269, avg reward:18.883689, avg entropy:1.363046
+ 76%|███████████████▉     | 76000/100000 [15:40:42<5:00:37,  1.33it/s]Saved checkpoint for step 76001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-76
+lr:0.000000, value loss:0.876376, avg reward:18.506317, avg entropy:1.270016
+ 77%|████████████████▏    | 77000/100000 [15:53:06<4:48:24,  1.33it/s]Saved checkpoint for step 77001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-77
+lr:0.000000, value loss:1.433289, avg reward:18.655295, avg entropy:1.387266
+ 78%|████████████████▍    | 78000/100000 [16:05:31<4:33:07,  1.34it/s]Saved checkpoint for step 78001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-78
+lr:0.000000, value loss:1.297330, avg reward:18.835644, avg entropy:1.274390
+ 79%|████████████████▌    | 79000/100000 [16:17:55<4:25:55,  1.32it/s]Saved checkpoint for step 79001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-79
+lr:0.000000, value loss:1.564899, avg reward:18.661467, avg entropy:1.278880
+ 80%|████████████████▊    | 80000/100000 [16:30:20<4:09:12,  1.34it/s]Saved checkpoint for step 80001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-80
+lr:0.000000, value loss:1.782506, avg reward:18.625070, avg entropy:1.083292
+ 81%|█████████████████    | 81000/100000 [16:42:42<3:57:13,  1.33it/s]Saved checkpoint for step 81001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-81
+lr:0.000000, value loss:1.384363, avg reward:18.667382, avg entropy:1.219051
+ 82%|█████████████████▏   | 82000/100000 [16:55:06<3:44:22,  1.34it/s]Saved checkpoint for step 82001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-82
+lr:0.000000, value loss:1.479449, avg reward:18.852440, avg entropy:1.129306
+ 83%|█████████████████▍   | 83000/100000 [17:07:29<3:33:39,  1.33it/s]Saved checkpoint for step 83001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-83
+lr:0.000000, value loss:0.956452, avg reward:18.647166, avg entropy:1.475037
+ 84%|█████████████████▋   | 84000/100000 [17:19:52<3:19:16,  1.34it/s]Saved checkpoint for step 84001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-84
+lr:0.000000, value loss:1.452670, avg reward:18.705198, avg entropy:0.994920
+ 85%|█████████████████▊   | 85000/100000 [17:32:21<3:06:39,  1.34it/s]Saved checkpoint for step 85001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-85
+lr:0.000000, value loss:1.924092, avg reward:18.682262, avg entropy:1.187815
+ 86%|██████████████████   | 86000/100000 [17:44:45<2:55:53,  1.33it/s]Saved checkpoint for step 86001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-86
+lr:0.000000, value loss:1.446153, avg reward:18.642060, avg entropy:1.287722
+ 87%|██████████████████▎  | 87000/100000 [17:57:11<2:43:07,  1.33it/s]Saved checkpoint for step 87001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-87
+lr:0.000000, value loss:1.056729, avg reward:18.286917, avg entropy:1.263868
+ 88%|██████████████████▍  | 88000/100000 [18:09:35<2:31:50,  1.32it/s]Saved checkpoint for step 88001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-88
+lr:0.000000, value loss:1.694365, avg reward:18.690926, avg entropy:1.214341
+ 89%|██████████████████▋  | 89000/100000 [18:22:00<2:18:19,  1.33it/s]Saved checkpoint for step 89001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-89
+lr:0.000000, value loss:1.351012, avg reward:18.870700, avg entropy:1.268180
+ 90%|██████████████████▉  | 90000/100000 [18:34:27<2:05:42,  1.33it/s]Saved checkpoint for step 90001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-90
+lr:0.000000, value loss:1.345291, avg reward:19.475382, avg entropy:1.253318
+ 91%|███████████████████  | 91000/100000 [18:46:51<1:53:14,  1.32it/s]Saved checkpoint for step 91001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-91
+lr:0.000000, value loss:1.328338, avg reward:18.520279, avg entropy:1.139627
+ 92%|███████████████████▎ | 92000/100000 [18:59:15<1:40:59,  1.32it/s]Saved checkpoint for step 92001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-92
+lr:0.000000, value loss:1.878827, avg reward:18.677544, avg entropy:1.151531
+ 93%|███████████████████▌ | 93000/100000 [19:11:39<1:27:53,  1.33it/s]Saved checkpoint for step 93001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-93
+lr:0.000000, value loss:1.111795, avg reward:18.988311, avg entropy:1.193605
+ 94%|███████████████████▋ | 94000/100000 [19:24:05<1:15:27,  1.33it/s]Saved checkpoint for step 94001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-94
+lr:0.000000, value loss:1.764637, avg reward:18.724545, avg entropy:1.335381
+ 95%|███████████████████▉ | 95000/100000 [19:36:31<1:03:14,  1.32it/s]Saved checkpoint for step 95001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-95
+lr:0.000000, value loss:1.621512, avg reward:18.465009, avg entropy:1.216561
+ 96%|██████████████████████ | 96000/100000 [19:48:59<50:57,  1.31it/s]Saved checkpoint for step 96001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-96
+lr:0.000000, value loss:1.513009, avg reward:18.504499, avg entropy:1.133182
+ 97%|██████████████████████▎| 97000/100000 [20:01:31<38:20,  1.30it/s]Saved checkpoint for step 97001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-97
+lr:0.000000, value loss:1.460548, avg reward:19.031866, avg entropy:1.134791
+ 98%|██████████████████████▌| 98000/100000 [20:14:08<25:28,  1.31it/s]Saved checkpoint for step 98001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-98
+lr:0.000000, value loss:1.467055, avg reward:18.345587, avg entropy:1.092880
+ 99%|██████████████████████▊| 99000/100000 [20:26:46<12:42,  1.31it/s]Saved checkpoint for step 99001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-99
+lr:0.000000, value loss:1.465589, avg reward:18.815849, avg entropy:1.541762
+100%|██████████████████████| 100000/100000 [20:39:24<00:00,  1.34it/s]
+Saved checkpoint for step 100001: ./tf_ckpts/TE_v2-CFR-RL_actor_critic_Conv_Abilene_TM_beta+/ckpt-100
+lr:0.000000, value loss:1.675316, avg reward:18.965324, avg entropy:1.083861
