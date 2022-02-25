@@ -26,8 +26,8 @@ class NetworkConfig(object):
 class Config(NetworkConfig):
     version = 'TE_v2'
     project_name = 'CFR-RL'
-    method = 'actor_critic'
-    # method = 'pure_policy'
+    # method = 'actor_critic'
+    method = 'pure_policy'
 
     model_type = 'Conv'
 
@@ -50,7 +50,7 @@ class Config(NetworkConfig):
 
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
-    scheme = model_name_suffix = suffix[2]
+    scheme = model_name_suffix = suffix[1]
     # scheme = model_name_suffix =debug_suffix[-1]
 
     central_links_nums = 10

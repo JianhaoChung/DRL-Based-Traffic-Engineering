@@ -6,11 +6,13 @@ import matplotlib.pyplot as plt
 
 from absl import flags
 
+from config import get_config
+
 FLAGS = flags.FLAGS
 flags.DEFINE_boolean('central_included', True, 'central link included or not')
 
 
-def data_analyzer(file, label_name):
+def data_analyzer(file, label_name, config):
     df = pd.read_csv(file, header=None)
 
     max_tm_idx = 288 * 6  # 288 * 7 (one week) by default
@@ -105,7 +107,10 @@ def data_analyzer(file, label_name):
         axes[1].set_ylim(0.3, 0.86)
         axes[1].tick_params(axis='x', rotation=20)
         plt.show()
-        fig.savefig(os.getcwd() + '/result/img/pr-mlu-delay-' + label_name[0] + '.png', format='png')
+        if config.method == 'actor-critic':
+            fig.savefig(os.getcwd() + '/result/img/ac-pr-mlu-delay-' + label_name[0] + '.png', format='png')
+        if config.method == 'pure_policy':
+            fig.savefig(os.getcwd() + '/result/img/pp-pr-mlu-delay-' + label_name[0] + '.png', format='png')
 
     def pr_bar_plot_day(metric_name, day_avg_mlu_save=None, day_avg_delay_save=None, label_name=None):
         figsize = (15, 8)
@@ -141,7 +146,10 @@ def data_analyzer(file, label_name):
             plt.ylim(0.6, 1)
             plt.legend(loc='upper right')
             plt.show()
-            fig.savefig(os.getcwd() + '/result/img/day-pr-mlu-' + label_name[0] + '.png', format='png')
+            if config.method == 'actor-critic':
+                fig.savefig(os.getcwd() + '/result/img/ac-day-pr-mlu-' + label_name[0] + '.png', format='png')
+            if config.method == 'pure_policy':
+                fig.savefig(os.getcwd() + '/result/img/pp-day-pr-mlu-' + label_name[0] + '.png', format='png')
 
         if metric_name == "delay":
             plt.title(
@@ -151,7 +159,11 @@ def data_analyzer(file, label_name):
             plt.ylim(0.6, 0.9)
             plt.legend(loc='upper right')
             plt.show()
-            fig.savefig(os.getcwd() + '/result/img/day-pr-delay-' + label_name[0] + '.png', format='png')
+            if config.method == 'actor-critic':
+                fig.savefig(os.getcwd() + '/result/img/ac-day-pr-delay-' + label_name[0] + '.png', format='png')
+            if config.method == 'pure_policy':
+                fig.savefig(os.getcwd() + '/result/img/pp-day-pr-delay-' + label_name[0] + '.png', format='png')
+
 
     if False:
         pr_bar_plot_week('mlu', avg_mlu=avg_mlu)
@@ -162,7 +174,7 @@ def data_analyzer(file, label_name):
     pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name)
 
 
-def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False):
+def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False, config=None):
     figsize = (18, 6)
     fig = plt.figure(figsize=figsize)
     df = pd.read_csv(file, header=None)
@@ -203,12 +215,22 @@ def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False):
     if scheme == 'mlu':
         plt.title("Load balancing performance ratio with traffic matrices from Day {}".format(day))
         plt.show()
-        fig.savefig(os.getcwd() + '/result/img/curve-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
+        if config.method == 'actor_critic':
+            fig.savefig(os.getcwd() + '/result/img/ac-curve-pr-mlu-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
+        if config.method == 'pure_policy':
+            fig.savefig(os.getcwd() + '/result/img/pp-curve-pr-mlu-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
+
     if scheme == 'delay':
         plt.title("End-to-end delay performance ratio with traffic matrices from Day {}".format(day))
         plt.show()
-        fig.savefig(os.getcwd() + '/result/img/curve-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
-                    format='png')
+        if config.method == 'actor_critic':
+            fig.savefig(os.getcwd() + '/result/img/ac-curve-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
+        if config.method == 'pure_policy':
+            fig.savefig(os.getcwd() + '/result/img/pp-curve-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
 
 
 def cdf_plot(file, scheme=None):
@@ -336,7 +358,7 @@ def cdf_plot_v3(file=None):
     plt.show()
 
 
-def cdf_plot_v5(file, scheme='mlu', label_name=None, day=3, week=False):
+def cdf_plot_v5(file, scheme='mlu', label_name=None, day=3, week=False, config=None):
     figsize = (12, 6)
     fig = plt.figure(figsize=figsize)
     df = pd.read_csv(file, header=None)
@@ -373,18 +395,28 @@ def cdf_plot_v5(file, scheme='mlu', label_name=None, day=3, week=False):
     plt.grid()
     plt.legend(loc='upper left')
     plt.show()
+
     if scheme == 'mlu':
-        fig.savefig(os.getcwd() + '/result/img/cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
+        if config.method == 'actor_critic':
+            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
+        if config.method == 'pure_policy':
+            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
     if scheme == 'delay':
-        fig.savefig(os.getcwd() + '/result/img/cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png', format='png')
+        if config.method == 'actor_critic':
+            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png', format='png')
+        if config.method == 'pure_policy':
+            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png', format='png')
 
 
 if __name__ == '__main__':
-    # file = 'result/result-actor-critic-baseline-ckpt7.csv'
+    config = get_config(FLAGS) or FLAGS
+
+    # file = 'result/csv/result-actor-critic-baseline-ckpt7.csv'
 
     # file = 'result/csv/result-actor-critic-alpha-ckpt10.csv'
 
-    file = 'result/csv/result-actor-critic-alpha+-ckpt13.csv'
+    # file = 'result/csv/result-actor-critic-alpha+-ckpt13.csv'  # reward max
+    # file = 'result/csv/result-actor-critic-alpha+-ckpt48.csv' # value loss min
 
     # file = 'result/csv/result-actor-critic-beta++ckpt27.csv'
 
@@ -392,20 +424,20 @@ if __name__ == '__main__':
 
     # file = 'result/csv/result-actor-critic-delta-ckpt5.csv'
 
-    # file = 'result/result-pure-policy-baseline.csv'
-    # file = 'result/result-pure-policy-alpha+.csv'
+    # file = 'result/csv/result-pure-policy-baseline-ckpt37.csv'
+    file = 'result/csv/result-pure-policy-alpha-ckpt43.csv'
+    # file = 'result/csv/result-pure-policy-alpha+-ckpt.csv'
 
-    label_name = ['Baseline', 'TopK Critical', 'Centralized-TopK', 'TopK-Centralized', 'TopK', 'ECMP']
-    our_method = 'Alpha+'
-    label_name[0] = our_method
+    label_name = ['_', 'TopK Critical', 'Centralized-TopK', 'TopK-Centralized', 'TopK', 'ECMP']
+    label_name[0] = config.scheme.title()  # Be careful !
 
-    data_analyzer(file, label_name=label_name)
+    data_analyzer(file, label_name=label_name, config=config)
 
-    pr_plot(file, scheme='mlu', label_name=label_name, day=3)
-    pr_plot(file, scheme='delay', label_name=label_name, day=3)
+    pr_plot(file, scheme='mlu', label_name=label_name, day=3, config=config)
+    pr_plot(file, scheme='delay', label_name=label_name, day=3, config=config)
 
-    cdf_plot_v5(file, scheme='mlu', label_name=label_name, day=5, week=False)
-    cdf_plot_v5(file, scheme='delay', label_name=label_name, day=5, week=False)
+    cdf_plot_v5(file, scheme='mlu', label_name=label_name, day=5, week=False, config=config)
+    cdf_plot_v5(file, scheme='delay', label_name=label_name, day=5, week=False, config=config)
     exit(1)
     # cdf_plot_v2(file)
     # cdf_plot_v3(file)
