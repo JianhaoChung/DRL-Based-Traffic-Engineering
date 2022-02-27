@@ -50,7 +50,7 @@ class Config(NetworkConfig):
 
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
-    scheme = model_name_suffix = suffix[1]
+    scheme = model_name_suffix = suffix[2]
     # scheme = model_name_suffix =debug_suffix[-1]
 
     central_links_nums = 10
