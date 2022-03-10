@@ -14,9 +14,6 @@ class NetworkConfig(object):
     Conv2D_out = 128
     Dense_out = 128
 
-    # Conv2D_out = 64
-    # Dense_out = 64
-
     optimizer = 'RMSprop'
     # optimizer = 'Adam'
 
@@ -40,6 +37,7 @@ class Config(NetworkConfig):
 
     # For pure policy
     baseline = 'avg'  # avg, best
+    # baseline = 'best'  # avg, best
 
     partial_tm_zeroing = False  # False by default
     # partial_tm_zeroing = True
@@ -50,8 +48,11 @@ class Config(NetworkConfig):
 
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
-    scheme = model_name_suffix = suffix[2]
+    scheme = model_name_suffix = suffix[1]
     # scheme = model_name_suffix =debug_suffix[-1]
+
+    # scheme_explore = ''
+    scheme_explore = 'lastK_centralized_sample'  # lastK_sample
 
     central_links_nums = 10
     cf_influence = 1    # 1 by default

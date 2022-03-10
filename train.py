@@ -1,4 +1,6 @@
 from __future__ import print_function
+
+import random
 import warnings
 warnings.filterwarnings("ignore")
 import numpy as np
@@ -175,7 +177,19 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
         if config.scheme == 'alpha':
             for a in actions:
                 if a not in action_space:
-                    a_batch.append(0)
+                    # a_batch.append(0)
+
+                    if config.scheme_explore == 'lastK_sample':
+                        lastK = game.get_lastK_flows(tm_idx)
+                        a = random_state.choice(lastK, 1)
+                        a_batch.append(a.item())
+
+                    if config.scheme_explore == 'lastK_centralized_sample':
+                        lastK_centralized = game.get_lastK_central_flows(tm_idx, game.link_centrality_mapper,
+                                                                         game.topk_centralized_links, game.max_moves,
+                                                                         central_limit=False)
+                        a = random_state.choice(lastK_centralized, 1)
+                        a_batch.append(a.item())
                 else:
                     a_batch.append(a)
 
@@ -183,7 +197,20 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             cf_space = game.get_critical_topK_flows_with_multiplier(config, tm_idx, critical_links=10, sampling=False)
             for a in actions:
                 if a not in cf_space:
-                    a_batch.append(0)
+                    # a_batch.append(0)
+
+                    if config.scheme_explore == 'lastK_sample':
+                        lastK = game.get_lastK_flows(tm_idx)
+                        a = random_state.choice(lastK, 1)
+                        a_batch.append(a.item())
+
+                    if config.scheme_explore == 'lastK_centralized_sample':
+                        lastK_centralized = game.get_lastK_central_flows(tm_idx, game.link_centrality_mapper,
+                                                                         game.topk_centralized_links, game.max_moves,
+                                                                         central_limit=False)
+                        a = random_state.choice(lastK_centralized, 1)
+                        a_batch.append(a.item())
+
                 else:
                     a_batch.append(a)
 
@@ -191,7 +218,11 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             cf_space = game.get_topK_flows_with_multiplier(config, tm_idx, topK_num=game.max_moves*7)
             for a in actions:
                 if a not in cf_space:
-                    a_batch.append(0)
+                    # a_batch.append(0)
+
+                    if config.scheme_explore == 'lastK_sample':
+                        lastK = game.get_lastK_flows(tm_idx)
+                        a = random_state.choice(lastK, 1)
                 else:
                     a_batch.append(a)
 

@@ -93,6 +93,25 @@ class Game(object):
 
         return cf
 
+    def get_lastK_flows(self, tm_idx, pairs=None):
+        tm = self.traffic_matrices[tm_idx]
+        f = {}
+        if pairs is None:
+            pairs = [i for i in range(self.num_pairs)]
+
+        for p in pairs:
+            s, d = self.pair_idx_to_sd[p]
+            f[p] = tm[s][d]
+
+        sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]))
+        # print(sorted_f)
+        cf = []
+
+        for i in range(self.max_moves):
+            cf.append(sorted_f[i][0])
+
+        return cf
+
     def get_topK_flows_with_multiplier(self, config, tm_idx, pairs=None, max_move_multiplier=1, sampling=True, topK_num=None):
         tm = self.traffic_matrices[tm_idx]
         f = {}
@@ -264,6 +283,23 @@ class Game(object):
         cf = [item[0] for item in sorted_f[:central_flows_nums]]
         return cf
 
+
+    def get_lastK_central_flows(self, tm_idx, link_centerality_degree_mapper, topk_central_links, central_flows_nums, central_limit=False):
+
+        flow_centerality_mapper = [0]*self.num_pairs
+        for pair_idx in range(self.num_pairs):
+            for path_links in self.shortest_paths_link[pair_idx]:
+                for link in path_links:
+                    flow_centerality_mapper[pair_idx] += link_centerality_degree_mapper[self.link_idx_to_sd[link]]
+
+        flows_idx = [i for i in range(self.num_pairs)]
+        flow_centerality_mapper = dict(zip(flows_idx, flow_centerality_mapper))
+
+        sorted_f = sorted(flow_centerality_mapper.items(), key=lambda kv: (kv[1], kv[0]))
+
+        cf = [item[0] for item in sorted_f[:central_flows_nums]]
+        return cf
+
     def eval_ecmp_traffic_distribution(self, tm_idx, eval_delay=False):
         eval_link_loads = self.ecmp_traffic_distribution(tm_idx)
         eval_max_utilization = np.max(eval_link_loads / self.link_capacities)
@@ -406,13 +442,6 @@ class Game(object):
         return obj_r, solution
 
     def optimal_routing_mlu_centralized_pairs(self, tm_idx, action, action_space, pairs_mapper):
-
-        # cf = [1, 2, 5, 7, 8, 9, 12, 13, 16, 18, 19, 20, 24, 25, 27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 40, 43, 46, 47,
-        #       48, 51, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 71, 72, 73, 74, 75, 76, 79, 80, 82, 83, 84,
-        #       88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 99, 100, 101, 102, 104, 105, 107, 109, 110, 111, 112, 113, 115,
-        #       116, 118, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
-        #
-        # cf_pair_idx_to_sd = [self.pair_idx_to_sd[p] for p in cf]
 
         cf_pair_idx_to_sd = pairs_mapper
 

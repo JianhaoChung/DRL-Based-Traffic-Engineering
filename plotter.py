@@ -432,7 +432,10 @@ if __name__ == '__main__':
     # file = 'result/csv/result-pure-policy-alpha++-ckpt29.csv'
 
     label_name = ['_', 'TopK Critical', 'Centralized-TopK', 'TopK-Centralized', 'TopK', 'ECMP']
+
     label_name[0] = config.scheme.title()  # Be careful !
+    # label_name[0] = config.scheme.title() + 'LKC' # Last K Centralized
+    # label_name[0] = config.scheme.title() + 'LK'  # Last K
 
     data_analyzer(file, label_name=label_name, config=config)
 
