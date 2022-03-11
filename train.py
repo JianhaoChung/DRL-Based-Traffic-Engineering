@@ -188,6 +188,9 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                         lastK_centralized = game.get_lastK_central_flows(tm_idx, game.link_centrality_mapper,
                                                                          game.topk_centralized_links, game.max_moves,
                                                                          central_limit=False)
+
+                        lastK_centralized = lastK_centralized[:game.max_moves//2]
+
                         a = random_state.choice(lastK_centralized, 1)
                         a_batch.append(a.item())
                 else:
@@ -415,7 +418,7 @@ def main(_):
     for i in range(FLAGS.num_agents):
         # agents.append(mp.Process(target=agent, args=(i, config, game, tm_subsets[i], model_weights_queues[i], experience_queues[i])))
 
-        agents.append(mp.Process(target=agent,args=(i, config, game, tm_subsets[i],model_weights_queues[i], experience_queues[i],
+        agents.append(mp.Process(target=agent,args=(i, config, game, tm_subsets[i], model_weights_queues[i], experience_queues[i],
                                                     action_space, centralized_links, cf_pair_idx_to_sd)))
 
     for i in range(FLAGS.num_agents):

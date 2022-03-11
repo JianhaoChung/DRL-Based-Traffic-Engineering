@@ -112,14 +112,15 @@ def data_analyzer(file, label_name, config):
         if config.method == 'pure_policy':
             fig.savefig(os.getcwd() + '/result/img/pp-pr-mlu-delay-' + label_name[0] + '.png', format='png')
 
-    def pr_bar_plot_day(metric_name, day_avg_mlu_save=None, day_avg_delay_save=None, label_name=None):
+    def pr_bar_plot_day(metric_name, day_avg_mlu_save=None, day_avg_delay_save=None, label_name=None, days=7):
         figsize = (15, 8)
         fig = plt.figure(figsize=figsize)
         plt.rcParams['font.family'] = 'sans-serif'
-
         if metric_name == "mlu":
+            day_avg_mlu_save = day_avg_mlu_save[:days]
             data = np.array(day_avg_mlu_save).transpose()
         if metric_name == "delay":
+            day_avg_delay_save = day_avg_delay_save[:days]
             data = np.array(day_avg_delay_save).transpose()
 
         xvals, yvals, zvals, ivals, jvals, kvals = [data[i].tolist() for i in range(6)]
@@ -128,12 +129,15 @@ def data_analyzer(file, label_name, config):
         width = 0.15
         zorder = 3
 
-        plt.bar(ind, xvals, width, color='orangered', label=label_name[0], zorder=zorder)
-        plt.bar(ind + width, yvals, width, color='y', label=label_name[1], zorder=zorder)
-        plt.bar(ind + width * 2, zvals, width, color='cyan', label=label_name[2], zorder=zorder)
-        plt.bar(ind + width * 3, ivals, width, color='royalblue', label=label_name[3], zorder=zorder)
-        plt.bar(ind + width * 4, jvals, width, color='violet', label=label_name[4], zorder=zorder)
-        plt.bar(ind + width * 5, kvals, width, color='b', label=label_name[5], zorder=zorder)
+        # color_scheme = ['#b24745FF', '#00A1D5FF', '#DF8F44FF', '#374E55FF', '#79AF97FF', '#80796BFF']
+
+        color_scheme = ['#BB0021FF', '#088B45FF', '#3B4992FF', '#631879FF', '#008280FF', '#808180FF']
+        plt.bar(ind, xvals, width, color=color_scheme[0], label=label_name[0], zorder=zorder)
+        plt.bar(ind + width, yvals, width, color=color_scheme[1], label=label_name[1], zorder=zorder)
+        plt.bar(ind + width * 2, zvals, width, color=color_scheme[2], label=label_name[2], zorder=zorder)
+        plt.bar(ind + width * 3, ivals, width, color=color_scheme[3], label=label_name[3], zorder=zorder)
+        plt.bar(ind + width * 4, jvals, width, color=color_scheme[4], label=label_name[4], zorder=zorder)
+        plt.bar(ind + width * 5, kvals, width, color=color_scheme[5], label=label_name[5], zorder=zorder)
 
         plt.xlabel("Day of a week", loc="center", fontsize=12)
         plt.xticks(ind + width, [i + 1 for i in range(len(xvals))], fontsize=12)
@@ -156,7 +160,7 @@ def data_analyzer(file, label_name, config):
                 r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
                 fontsize=15)
             plt.ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=16)
-            plt.ylim(0.6, 0.9)
+            plt.ylim(0.35, 0.9)
             plt.legend(loc='upper right')
             plt.show()
             if config.method == 'actor-critic':
@@ -164,14 +168,13 @@ def data_analyzer(file, label_name, config):
             if config.method == 'pure_policy':
                 fig.savefig(os.getcwd() + '/result/img/pp-day-pr-delay-' + label_name[0] + '.png', format='png')
 
-
     if False:
         pr_bar_plot_week('mlu', avg_mlu=avg_mlu)
         pr_bar_plot_week('delay', avg_delay=avg_delay)
 
     pr_bar_plot_week_integrate(avg_mlu=avg_mlu, avg_delay=avg_delay, label_name=label_name)
-    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name)
-    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name)
+    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name, days=5)
+    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name, days=5)
 
 
 def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False, config=None):
@@ -233,132 +236,7 @@ def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False, config=None)
                         format='png')
 
 
-def cdf_plot(file, scheme=None):
-    df = pd.read_csv(file, header=None)
-
-    if scheme == 'mlu':
-        idx = [1, 3, 5, 7]
-        x_label = r'$\mathrm{{PR_U}}$'
-    if scheme == 'delay':
-        idx = [9, 10, 11, 12, 13]
-        x_label = r'$\mathrm{{PR_\Omega}}$'
-
-    data = df[idx[0]].to_numpy()
-    data1 = df[idx[1]].to_numpy()
-    data2 = df[idx[2]].to_numpy()
-    data3 = df[idx[3]].to_numpy()
-
-    # getting data of the histogram
-    count, bins_count = np.histogram(data, bins=10)
-    count1, bins_count1 = np.histogram(data1, bins=10)
-    count2, bins_count2 = np.histogram(data2, bins=10)
-    count3, bins_count3 = np.histogram(data3, bins=10)
-
-    # finding the PDF of the histogram using count values
-    pdf = count / sum(count)
-
-    pdf1 = count / sum(count1)
-    pdf2 = count / sum(count2)
-    pdf3 = count / sum(count3)
-
-    # using numpy np.cumsum to calculate the CDF
-    # We can also find using the PDF values by looping and adding
-    cdf = np.cumsum(pdf)
-
-    cdf1 = np.cumsum(pdf1)
-    cdf2 = np.cumsum(pdf2)
-    cdf3 = np.cumsum(pdf3)
-
-    # plotting PDF and CDF
-
-    # plt.plot(bins_count[1:], pdf, color="red", label="PDF")
-
-    plt.plot(bins_count[1:], cdf, label="Our Method")
-
-    plt.plot(bins_count1[1:], cdf1, label="Top-K Critical")
-    plt.plot(bins_count2[1:], cdf2, label="Top-K")
-    plt.plot(bins_count3[1:], cdf3, label="ECMP")
-    plt.legend()
-    plt.ylim(0, 1)
-    plt.xlabel(x_label)
-    plt.ylabel("CDF")
-    plt.show()
-
-
-def cdf_plot_v2(file, scheme=None):
-    df = pd.read_csv(file, header=None)
-
-    np.random.seed(19680801)
-
-    mu = 200
-    sigma = 25
-    n_bins = 50
-
-    x = df[1].to_numpy()
-    x1 = df[3].to_numpy()
-    x2 = df[5].to_numpy()
-    x3 = df[7].to_numpy()
-    fig, ax = plt.subplots(figsize=(8, 4))
-
-    # plot the cumulative histogram
-    n, bins, patches = ax.hist(x, n_bins, density=True, histtype='step',
-                               cumulative=True, label='Our Method')
-    n, bins, patches = ax.hist(x1, n_bins, density=True, histtype='step',
-                               cumulative=True, label='Top-K Critical')
-    n, bins, patches = ax.hist(x2, n_bins, density=True, histtype='step',
-                               cumulative=True, label='Top-K')
-    n, binss, patches = ax.hist(x3, n_bins, density=True, histtype='step',
-                                cumulative=True, label='ECMP')
-
-    # Add a line showing the expected distribution.
-    y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
-         np.exp(-0.5 * (1 / sigma * (bins - mu)) ** 2))
-    y = y.cumsum()
-    y /= y[-1]
-
-    y1 = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
-          np.exp(-0.5 * (1 / sigma * (binss - mu)) ** 2))
-    y1 = y1.cumsum()
-    y1 /= y1[-1]
-
-    ax.plot(bins, y, 'k--', linewidth=1.5, label='Theoretical')
-    ax.plot(binss, y1, 'k--', linewidth=1.5, label='Theoretical2')
-
-    # Overlay a reversed cumulative histogram.
-    # ax.hist(x, bins=bins, density=True, histtype='step', cumulative=-1,
-    #         label='Reversed emp.')
-
-    # tidy up the figure
-    ax.grid(True)
-    ax.legend(loc='best')
-    ax.set_title('Cumulative step histograms')
-    ax.set_xlabel(r'$\mathrm{{PR_U}}$')
-    ax.set_ylabel('CDF')
-    plt.xlim(0, 1)
-    # plt.ylim(0, 1)
-    plt.show()
-
-
-def cdf_plot_v3(file=None):
-    df = pd.read_csv(file, header=None)
-    x = df[1].to_numpy()
-    print(np.max(x), np.min(x))
-    y = 0.25 * np.exp((-x ** 2) / 2)
-
-    y = y / (np.sum(x * y))
-    cdf = np.cumsum(y * x)
-
-    plt.plot(x, y, label="pdf")
-    plt.plot(x, cdf, label="cdf")
-    plt.xlabel("X")
-    plt.ylabel("Probability Values")
-    plt.title("CDF for continuous distribution")
-    plt.xlim(0.6, 1)
-    plt.legend()
-    plt.show()
-
-
-def cdf_plot_v5(file, scheme='mlu', label_name=None, day=3, week=False, config=None):
+def cdf_plot(file, scheme='mlu', label_name=None, day=3, week=False, config=None):
     figsize = (12, 6)
     fig = plt.figure(figsize=figsize)
     df = pd.read_csv(file, header=None)
@@ -398,14 +276,18 @@ def cdf_plot_v5(file, scheme='mlu', label_name=None, day=3, week=False, config=N
 
     if scheme == 'mlu':
         if config.method == 'actor_critic':
-            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
+            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
         if config.method == 'pure_policy':
-            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png', format='png')
+            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-mlu-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
     if scheme == 'delay':
         if config.method == 'actor_critic':
-            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png', format='png')
+            fig.savefig(os.getcwd() + '/result/img/ac-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
         if config.method == 'pure_policy':
-            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png', format='png')
+            fig.savefig(os.getcwd() + '/result/img/pp-cdf-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
+                        format='png')
 
 
 if __name__ == '__main__':
@@ -426,15 +308,17 @@ if __name__ == '__main__':
 
     # file = 'result/csv/result-pure-policy-baseline-ckpt37.csv'
     # file = 'result/csv/result-pure-policy-alpha-ckpt43.csv'
-    file = 'result/csv/result-pure-policy-alpha+-ckpt36.csv'
+    # file = 'result/csv/result-pure-policy-alpha+-ckpt36.csv'
 
+    # file = 'result/csv/result-pure-policy-alpha-lastK-centralized-sample.csv'
+    file = 'result/csv/result-pure-policy-alpha-lastK-centralized-sample-0.5scaleK.csv'
     # file = 'result/csv/result-pure-policy-alpha++-ckpt32-adam.csv'
     # file = 'result/csv/result-pure-policy-alpha++-ckpt29.csv'
 
     label_name = ['_', 'TopK Critical', 'Centralized-TopK', 'TopK-Centralized', 'TopK', 'ECMP']
 
-    label_name[0] = config.scheme.title()  # Be careful !
-    # label_name[0] = config.scheme.title() + 'LKC' # Last K Centralized
+    # label_name[0] = config.scheme.title()  # Be careful !
+    label_name[0] = config.scheme.title() + 'LKC--0.5K'  # Last K Centralized
     # label_name[0] = config.scheme.title() + 'LK'  # Last K
 
     data_analyzer(file, label_name=label_name, config=config)
@@ -442,10 +326,6 @@ if __name__ == '__main__':
     pr_plot(file, scheme='mlu', label_name=label_name, day=3, config=config)
     pr_plot(file, scheme='delay', label_name=label_name, day=3, config=config)
 
-    cdf_plot_v5(file, scheme='mlu', label_name=label_name, day=5, week=False, config=config)
-    cdf_plot_v5(file, scheme='delay', label_name=label_name, day=5, week=False, config=config)
-    exit(1)
-    # cdf_plot_v2(file)
-    # cdf_plot_v3(file)
-    cdf_plot(file, scheme='mlu')
-    cdf_plot(file, scheme='delay')
+    cdf_plot(file, scheme='mlu', label_name=label_name, day=5, week=False, config=config)
+    cdf_plot(file, scheme='delay', label_name=label_name, day=5, week=False, config=config)
+

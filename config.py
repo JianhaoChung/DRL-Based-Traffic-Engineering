@@ -52,7 +52,8 @@ class Config(NetworkConfig):
     # scheme = model_name_suffix =debug_suffix[-1]
 
     # scheme_explore = ''
-    scheme_explore = 'lastK_centralized_sample'  # lastK_sample
+    scheme_explore = 'lastK_centralized_sample'
+    # scheme_explore = 'lastK_sample'
 
     central_links_nums = 10
     cf_influence = 1    # 1 by default
