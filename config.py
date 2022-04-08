@@ -25,7 +25,6 @@ class Config(NetworkConfig):
     project_name = 'CFR-RL'
     # method = 'actor_critic'
     method = 'pure_policy'
-
     model_type = 'Conv'
 
     topology_name = ['Abilene', 'Ebone', 'Sprintlink', 'Tiscali']
@@ -33,7 +32,10 @@ class Config(NetworkConfig):
     traffic_file = 'TM'
     test_traffic_file = 'TM2'
     tm_history = 1
-    max_moves = 10  # percentage
+    # max_moves = 10  # percentage default
+    # max_moves = 20  # percentage
+    # max_moves = 15  # percentage
+    max_moves = 5  # percentage
 
     # For pure policy
     baseline = 'avg'  # avg, best
@@ -42,16 +44,17 @@ class Config(NetworkConfig):
     partial_tm_zeroing = False  # False by default
     # partial_tm_zeroing = True
 
-    suffix = ['baseline', 'alpha',  'alpha+', 'alpha++', 'beta',
+    suffix = ['baseline', 'alpha',  'alpha_update', 'alpha+', 'alpha++', 'beta',
               'beta+', 'beta++', 'beta+++', 'betas+++', 'beta++++',
               'delta']
 
     debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
 
-    scheme = model_name_suffix = suffix[1]
+    scheme = model_name_suffix = suffix[2]
     # scheme = model_name_suffix =debug_suffix[-1]
 
-    # scheme_explore = ''
+    # scheme_explore = None
+
     scheme_explore = 'lastK_centralized_sample'
     # scheme_explore = 'lastK_sample'
 
