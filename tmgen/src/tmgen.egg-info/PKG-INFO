@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: tmgen
+Version: 0.1.2
+Summary: Library for network traffic matrix generation
+Home-page: https://github.com/progwriter/TMgen
+Author: Victor Heorhiadi
+Author-email: victor@cs.unc.edu
+License: MIT
+Description: UNKNOWN
+Keywords: network,traffic,matrix
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Topic :: System :: Networking
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Provides-Extra: plotting

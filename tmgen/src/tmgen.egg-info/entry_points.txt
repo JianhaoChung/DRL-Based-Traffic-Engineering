@@ -1,0 +1,3 @@
+[console_scripts]
+tmditg = tmgen.inject.ditg_injector:main
+

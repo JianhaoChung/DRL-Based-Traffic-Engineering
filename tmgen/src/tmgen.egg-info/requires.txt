@@ -1,0 +1,7 @@
+numpy
+cython
+six
+
+[plotting]
+matplotlib
+seaborn
