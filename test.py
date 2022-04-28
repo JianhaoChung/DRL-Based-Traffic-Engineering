@@ -13,10 +13,10 @@ from config import get_config
 from env import Environment
 from game import CFRRL_Game
 from model import Network
-
+ckpt_num = 46
 FLAGS = flags.FLAGS
 # flags.DEFINE_string('ckpt', '', 'apply a specific checkpoint')
-flags.DEFINE_string('ckpt', 'ckpt-47', 'apply a specific checkpoint')
+flags.DEFINE_string('ckpt', 'ckpt-'+str(ckpt_num), 'apply a specific checkpoint')
 # flags.DEFINE_boolean('eval_delay', False, 'evaluate delay or not')
 flags.DEFINE_boolean('eval_delay', True, 'evaluate delay or not')
 flags.DEFINE_boolean('central_included', True, 'central link included or not')

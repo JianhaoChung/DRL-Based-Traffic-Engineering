@@ -431,6 +431,13 @@ class Game(object):
 
         model += r + OBJ_EPSILON * lpSum([link_load[ei] for ei in self.links])  # formula (4a) constraint
 
+        # todo
+
+        # optimal_link_loads *= self.load_multiplier[tm_idx]
+        # delay = sum(optimal_link_loads / (self.link_capacities - optimal_link_loads))
+        # weight = 0.8
+        # model += r + OBJ_EPSILON * ((1-weight)*lpSum(1/delay) + weight*lpSum([link_load[ei] for ei in self.links]))
+
         model.solve(solver=GLPK(msg=False))
         assert LpStatus[model.status] == 'Optimal'
 

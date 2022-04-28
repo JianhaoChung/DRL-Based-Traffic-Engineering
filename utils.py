@@ -53,6 +53,7 @@ class utility:
                 self.num_pairs += 1
                 self.shortest_paths.append([])
                 paths = line[line.find(':') + 1:].strip()[1:-1]
+                # print(paths)
                 while paths != '':
                     idx = paths.find(']')
                     path = paths[1:idx]
@@ -61,9 +62,14 @@ class utility:
 
                     self.shortest_paths_format.append(path)
 
+                    if self.topology_file == './data/Ebone':
+                        break
+
                     assert node_path.size == np.unique(node_path).size
                     self.shortest_paths[-1].append(node_path)
                     paths = paths[idx + 3:]
+
+            # print(self.num_pairs, len(self.shortest_paths_format))
 
         self.shortest_paths_links = []
         for path in self.shortest_paths_format:
@@ -107,9 +113,13 @@ class utility:
         self.shortest_path_tag = [0 for i in range(len(self.shortest_paths))]
         action_space = []
 
+        # print(link_centrality_mapper, len(link_centrality_mapper))
+        # print(self.topk_centralized_links)
+
         for idx, path in enumerate(self.shortest_paths_links):
             if len(set(path).intersection(self.topk_centralized_links)) >= central_influence:
                 self.shortest_path_tag[idx] = 1
+
         for idx, val in enumerate(self.shortest_path_tag):
             if val == 1:
                 action_space.append(idx)
@@ -118,7 +128,6 @@ class utility:
         #       .format(self.shortest_path_tag.count(1), self.shortest_path_tag.count(0)))
 
         # print(self.shortest_path_tag)
-
         partial_tm_zeroing = [pair for idx, pair in enumerate(self.pair_idx_to_sd) if self.shortest_path_tag[idx] == 0]
 
         if print_:

@@ -62,40 +62,26 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
     print('\n*Average load balancing performance ratio among different schemes in one week *\n', avg_mlu)
     print('\n*Average end-to-end delay performance ratio among different schemes in one week*\n', avg_delay)
 
-    def pr_bar_plot_week(metric_name, avg_mlu=None, avg_delay=None, label_name=None):
-        label_name = label_name
-        fig_size = (8, 6)
-        plt.figure(figsize=fig_size)
-        plt.rcParams['font.family'] = 'sans-serif'
-        if metric_name == "mlu":
-            data = avg_mlu
-        if metric_name == "delay":
-            data = avg_delay
-        plt.bar(label_name, data, width=0.5)
-        if metric_name == "mlu":
-            plt.title(
-                r'Average load balancing performance ratio ($\mathrm{{PR_U}}$) among different schemes in one week',
-                fontsize=10)
-            plt.ylabel(r'$\mathrm{{PR_U}}$', weight="bold", fontsize=10)
-            plt.ylim(0.6, 1)
-            plt.legend()
-        if metric_name == "delay":
-            plt.title(
-                r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
-                fontsize=10)
-            plt.ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=10)
-            plt.ylim(0.6, 0.9)
-            plt.legend()
-        plt.show()
-
     def pr_bar_plot_week_integrate(avg_mlu=None, avg_delay=None, label_name=None):
-        fig_size = (18, 6.5)
+        # fig_size = (18, 6.5)
+        fig_size = (15, 6)
         fig, axes = plt.subplots(1, 2, figsize=fig_size, sharey=False, gridspec_kw={'width_ratios': [1, 1]})
         plt.rcParams['font.family'] = 'sans-serif'
 
+        avg_mlu = [avg_mlu[0], avg_mlu[1], avg_mlu[3], avg_mlu[-2], avg_mlu[-1]]
+        avg_delay = [avg_delay[0], avg_delay[1], avg_delay[3], avg_delay[-2], avg_delay[-1]]
+        label_name = [label_name[0], label_name[1], label_name[3], label_name[-2], label_name[-1]]
+        width = 0.3
+
         data1 = avg_mlu
         data2 = avg_delay
-        width = 0.5
+
+        # color = ['#be5629', '#056faf',  '#4e9595',  '#f4cc66', '#808180FF']
+        # std_err = [0.005, 0.02, 0.025, 0.025, 0.02]
+        # error_params = dict(elinewidth=1, ecolor=color[-1], capsize=5)  # 设置误差标记参数
+        # axes[0].bar(label_name, data1, width=width, yerr=std_err, error_kw=error_params, color=color)
+        # axes[1].bar(label_name, data2, width=width, yerr=std_err, error_kw=error_params, color=color)
+
         axes[0].bar(label_name, data1, width=width)
         axes[1].bar(label_name, data2, width=width)
 
@@ -103,15 +89,15 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
             r'Average load balancing performance ratio ($\mathrm{{PR_U}}$) among different schemes in one week',
             fontsize=10)
         axes[0].set_ylabel(r'$\mathrm{{PR_U}}$', weight="bold", fontsize=12)
-        axes[0].set_ylim(0.6, 1)
-        axes[0].tick_params(axis='x', rotation=20)
+        axes[0].set_ylim(0.5, 1)
+        axes[0].tick_params(axis='x', rotation=10)
 
         axes[1].set_title(
             r'Average end-to-end delay performance ratio ($\mathrm{{PR_\Omega}}$) among different schemes in one week',
             fontsize=10)
         axes[1].set_ylabel(r'$\mathrm{{PR_\Omega}}$', weight="bold", fontsize=12)
-        axes[1].set_ylim(0.3, 0.86)
-        axes[1].tick_params(axis='x', rotation=20)
+        axes[1].set_ylim(0.3, 0.9)
+        axes[1].tick_params(axis='x', rotation=10)
         plt.show()
         # if config.method == 'actor-critic':
         #     fig.savefig(os.getcwd() + '/result/img/ac-pr-mlu-delay-' + label_name[0] + '.png', format='png')
@@ -120,7 +106,7 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
 
     def pr_bar_plot_day(metric_name, day_avg_mlu_save=None, day_avg_delay_save=None, label_name=None, days=7,
                         save_plot=save_plot):
-        figsize = (15, 8)
+        figsize = (15, 6)
         fig = plt.figure(figsize=figsize)
         plt.rcParams['font.family'] = 'sans-serif'
         if metric_name == "mlu":
@@ -138,7 +124,6 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
         zorder = 3
 
         # color_scheme = ['#b24745FF', '#00A1D5FF', '#DF8F44FF', '#374E55FF', '#79AF97FF', '#80796BFF']
-
         # color_scheme = ['#BB0021FF', '#A20056FF', '#088B45FF', '#3B4992FF', '#631879FF', '#008280FF', '#808180FF']
         # color_scheme = ['#be5629', '#056faf',  '#b79561', '#003c4b', '#758837', '#f4cc66',  '#808180FF']
         color_scheme = ['#be5629', '#056faf', '#b79561', '#4e9595', '#758837', '#f4cc66', '#808180FF']
@@ -146,11 +131,15 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
         # color_scheme = ['#be5629', '#003c4b',   '#b79561','#056faf', '#758837', '#f4cc66',  '#808180FF']
         plt.bar(ind, xvals, bar_width, color=color_scheme[0], label=label_name[0], zorder=zorder)
         plt.bar(ind + width, xxvals, bar_width, color=color_scheme[1], label=label_name[1], zorder=zorder)
-        plt.bar(ind + width * 2, yvals, bar_width, color=color_scheme[2], label=label_name[2], zorder=zorder)
-        plt.bar(ind + width * 3, zvals, bar_width, color=color_scheme[3], label=label_name[3], zorder=zorder)
-        plt.bar(ind + width * 4, ivals, bar_width, color=color_scheme[4], label=label_name[4], zorder=zorder)
-        plt.bar(ind + width * 5, jvals, bar_width, color=color_scheme[5], label=label_name[5], zorder=zorder)
-        plt.bar(ind + width * 6, kvals, bar_width, color=color_scheme[6], label=label_name[6], zorder=zorder)
+        plt.bar(ind + width * 2, zvals, bar_width, color=color_scheme[3], label=label_name[3], zorder=zorder)
+        plt.bar(ind + width * 3, jvals, bar_width, color=color_scheme[5], label=label_name[5], zorder=zorder)
+        plt.bar(ind + width * 4, kvals, bar_width, color=color_scheme[6], label=label_name[6], zorder=zorder)
+
+        # plt.bar(ind + width * 2, yvals, bar_width, color=color_scheme[2], label=label_name[2], zorder=zorder)
+        # plt.bar(ind + width * 3, zvals, bar_width, color=color_scheme[3], label=label_name[3], zorder=zorder)
+        # plt.bar(ind + width * 4, ivals, bar_width, color=color_scheme[4], label=label_name[4], zorder=zorder)
+        # plt.bar(ind + width * 5, jvals, bar_width, color=color_scheme[5], label=label_name[5], zorder=zorder)
+        # plt.bar(ind + width * 6, kvals, bar_width, color=color_scheme[6], label=label_name[6], zorder=zorder)
 
         plt.xlabel("Day of a week", loc="center", fontsize=12)
         plt.xticks(ind + width, [i + 1 for i in range(len(xvals))], fontsize=12)
@@ -183,75 +172,95 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
                 if config.method == 'actor-critic':
                     fig.savefig(os.getcwd() + '/result/img/week-ac-avg-delay-' + label_name[0] + '.png', format='png')
                 if config.method == 'pure_policy':
-                    fig.savefig(os.getcwd() + '/result/img/week-pg-avg-delay-' + label_name[0] + '-' + label_name[1] + '.png', format='png')
-
-    if False:
-        pr_bar_plot_week('mlu', avg_mlu=avg_mlu)
-        pr_bar_plot_week('delay', avg_delay=avg_delay)
+                    fig.savefig(
+                        os.getcwd() + '/result/img/week-pg-avg-delay-' + label_name[0] + '-' + label_name[1] + '.png',
+                        format='png')
 
     pr_bar_plot_week_integrate(avg_mlu=avg_mlu, avg_delay=avg_delay, label_name=label_name)
-    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name, days=5)
-    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name, days=5)
+    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name, days=7)
+    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name, days=7)
 
 
-def pr_plot(file, scheme='mlu', label_name=None, day=1, week=False, config=None, save_plot=False):
-    figsize = (18, 6)
-    fig = plt.figure(figsize=figsize)
-    df = pd.read_csv(file, header=None)
-
+def pr_week_plot(file1, file2, scheme='mlu', label_name=None, config=None, save_plot=False):
+    fig_size = (20, 6)
+    fig = plt.figure(figsize=fig_size)
+    df = pd.read_csv(file1, header=None)
+    df2 = pd.read_csv(file2, header=None)
     if scheme == 'mlu':
         idx = [1, 3, 5, 7, 9, 11]
         y_label = r'$\mathrm{{PR_U}}$'
     if scheme == 'delay':
         idx = [13, 14, 15, 16, 17, 19]
         y_label = r'$\mathrm{{PR_\Omega}}$'
-    y1, y2, y3, y4, y5, y6 = [df[idx[i]].to_numpy() for i in range(len(idx))]
+    Y1, Y2, Y3, Y4, Y5, Y6 = [df[idx[i]].to_numpy() for i in range(len(idx))]
+    Y1_2 = df2[idx[0]].to_numpy()
 
-    days = 7
-    s = [i * 288 for i in range(days)]
-    e = [(i + 1) * 288 - 1 for i in range(days)]
+    max_idx = 288 * 7
+    Y1, Y1_2, Y2, Y3, Y4, Y5, Y6 = Y1[:max_idx], Y1_2[:max_idx], Y2[:max_idx], Y3[:max_idx], Y4[:max_idx], Y5[
+                                                                                                           :max_idx], Y6[
+                                                                                                                      :max_idx]
 
-    x = np.array([i + 1 for i in range(e[day - 1] - s[day - 1])])
-    y1 = y1[s[day - 1]:e[day - 1]]
-    y2 = y2[s[day - 1]:e[day - 1]]
-    y3 = y3[s[day - 1]:e[day - 1]]
-    y4 = y4[s[day - 1]:e[day - 1]]
-    y5 = y5[s[day - 1]:e[day - 1]]
-    y6 = y6[s[day - 1]:e[day - 1]]
+    x = np.array([i + 1 for i in range(len(Y1))])
+    label_font_size = 13
+    title_font_size = 15
+    # marker = ['r|-', 'b*-', 'y^-', 'm_-', 'g>-', 'cx-']
+    marker = ['r', 'g', 'm', 'b', 'y', 'c', 'gray']
+    # marker = ['#be5629', '#056faf', '#b79561', '#4e9595', '#758837', '#f4cc66', '#808180FF']
+    # marker = ['r|-', 'g*-', 'm^-', 'bx-', 'y+-', 'c.-', 'gray']
+    markersize = 2
+    light_weigt = 0.8
+    plt.plot(x, Y1, marker[0], markersize=markersize, linewidth=light_weigt, label=label_name[0])
+    plt.plot(x, Y1_2, marker[1], markersize=markersize, linewidth=light_weigt, label=label_name[1])
+    plt.plot(x, Y3, marker[2], markersize=markersize, linewidth=light_weigt, label=label_name[3])
+    plt.plot(x, Y5, marker[3], markersize=markersize, linewidth=light_weigt, label=label_name[5])
+    plt.plot(x, Y6, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[6])
 
-    # plt.plot(x, y1, 'r--',  x, y2, 'b*', x, y3, 'g+', x, y4, 'c')
-    plt.plot(x, y1, 'r|-', label=label_name[0])
-    plt.plot(x, y2, 'b*-', label=label_name[1])
-    plt.plot(x, y3, 'y^-', label=label_name[2])
-    plt.plot(x, y4, 'm_-', label=label_name[3])
-    plt.plot(x, y5, 'g>-', label=label_name[4])
-    plt.plot(x, y6, 'cx-', label=label_name[5])
+    # axes[i, j].plot(x, y2, marker[2], markersize=markersize, label=label_name[2])
+    # axes[i, j].plot(x, y3, marker[3], markersize=markersize, label=label_name[3])
+    # axes[i, j].plot(x, y4, marker[4], markersize=markersize, label=label_name[4])
+    # axes[i, j].plot(x, y5, marker[5], markersize=markersize, label=label_name[5])
+    # axes[i, j].plot(x, y6, marker[6], markersize=markersize, label=label_name[6])
     plt.legend(loc='lower right')
-    plt.xlabel("Traffic Matrix index")
-    plt.xlim(0, 288)
-    # plt.ylim(0.3, 1)
-    plt.ylabel(y_label)
+    plt.xlabel("Traffic Matrix index", weight="bold", fontsize=label_font_size)
+    plt.xlim(0, len(Y1))
+    plt.ylabel(y_label, weight="bold", fontsize=label_font_size)
 
     if scheme == 'mlu':
-        plt.title("Load balancing performance ratio with traffic matrices from Day {}".format(day))
+        plt.ylim(0.5, 1.005)
+        plt.title(
+            r'Link Load Balancing Performance ($\mathrm{{PR_U}}$) among different rerouting schemes in on week (' + str(
+                len(Y1)) + ' TMs)',
+            fontsize=title_font_size)
         plt.show()
         if save_plot:
             if config.method == 'actor_critic':
-                fig.savefig(os.getcwd() + '/result/img/ac-curve-pr-mlu-day{}-'.format(day) + label_name[0] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/week_details_all-schemes-curve-ac-pr-mlu-week-' + label_name[0] + '.png',
+                    format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/pp-curve-pr-mlu-day{}-'.format(day) + label_name[0] + '-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/week_details_all-schemes-curve-pg-pr-mlu-week-' + label_name[0] + '-' +
+                    label_name[
+                        1] + '.png',
+                    format='png')
+
     if scheme == 'delay':
-        plt.title("End-to-end delay performance ratio with traffic matrices from Day {}".format(day))
+        plt.ylim(0.2, 0.95)
+        plt.title(r'End-to-End Delay Performance ($\mathrm{{PR_\Omega}}$) among different rerouting in on week (' + str(
+            len(Y1)) + ' TMs)',
+                  fontsize=title_font_size)
         plt.show()
         if save_plot:
             if config.method == 'actor_critic':
-                fig.savefig(os.getcwd() + '/result/img/ac-curve-pr-delay-day{}-'.format(day) + label_name[0] + '.png',
+                fig.savefig(os.getcwd() + '/result/img/week_details_all-schemes-curve-ac-pr-delay-week-' + label_name[
+                    0] + '.png',
                             format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/pp-curve-pr-delay-day{}-'.format(day) + label_name[0] + '-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/week_details_all-schemes-curve-pg-pr-delay-week-' + label_name[0] + '-' +
+                    label_name[
+                        1] + '.png',
+                    format='png')
 
 
 def pr_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day_list=None, save_plot=False):
@@ -292,18 +301,23 @@ def pr_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day_
         # marker = ['#be5629', '#056faf', '#b79561', '#4e9595', '#758837', '#f4cc66', '#808180FF']
 
         # marker = ['r|-', 'g*-', 'm^-', 'bx-', 'y+-', 'c.-', 'gray']
+        light_weigt = 0.8
         markersize = 5
-        axes[i, j].plot(x, y1, marker[0], markersize=markersize, label=label_name[0])
-        axes[i, j].plot(x, y1_2, marker[1], markersize=markersize, label=label_name[1])
-        axes[i, j].plot(x, y2, marker[2], markersize=markersize, label=label_name[2])
-        axes[i, j].plot(x, y3, marker[3], markersize=markersize, label=label_name[3])
-        axes[i, j].plot(x, y4, marker[4], markersize=markersize, label=label_name[4])
-        axes[i, j].plot(x, y5, marker[5], markersize=markersize, label=label_name[5])
-        axes[i, j].plot(x, y6, marker[6], markersize=markersize, label=label_name[6])
+        axes[i, j].plot(x, y1, marker[0], markersize=markersize, linewidth=light_weigt, label=label_name[0])
+        axes[i, j].plot(x, y1_2, marker[1], markersize=markersize, linewidth=light_weigt, label=label_name[1])
+        axes[i, j].plot(x, y3, marker[2], markersize=markersize, linewidth=light_weigt, label=label_name[3])
+        axes[i, j].plot(x, y5, marker[3], markersize=markersize, linewidth=light_weigt, label=label_name[5])
+        axes[i, j].plot(x, y6, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[6])
+
+        # axes[i, j].plot(x, y2, marker[2], markersize=markersize, label=label_name[2])
+        # axes[i, j].plot(x, y3, marker[3], markersize=markersize, label=label_name[3])
+        # axes[i, j].plot(x, y4, marker[4], markersize=markersize, label=label_name[4])
+        # axes[i, j].plot(x, y5, marker[5], markersize=markersize, label=label_name[5])
+        # axes[i, j].plot(x, y6, marker[6], markersize=markersize, label=label_name[6])
         axes[i, j].legend(loc='lower right')
         axes[i, j].set_xlabel("Traffic Matrix index")
         axes[i, j].set_xlim(0, 288)
-        # plt.ylim(0.3, 1)
+        axes[i, j].set_ylim(0.3, 1.01)
         axes[i, j].set_ylabel(y_label)
         axes[i, j].set_title('Day {}'.format(day))
 
@@ -314,18 +328,23 @@ def pr_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day_
                 fig.savefig(os.getcwd() + '/result/img/all-schemes-curve-ac-pr-mlu-days-' + label_name[0] + '.png',
                             format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/all-schemes-curve-pg-pr-mlu-days-' + label_name[0] + '-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/all-schemes-curve-pg-pr-mlu-days-' + label_name[0] + '-' + label_name[
+                        1] + '.png',
+                    format='png')
 
     if scheme == 'delay':
+        plt.ylim(0.3, 0.95)
         plt.show()
         if save_plot:
             if config.method == 'actor_critic':
                 fig.savefig(os.getcwd() + '/result/img/all-schemes-curve-ac-pr-delay-days-' + label_name[0] + '.png',
                             format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/all-schemes-curve-pg-pr-delay-days-' + label_name[0] +'-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/all-schemes-curve-pg-pr-delay-days-' + label_name[0] + '-' + label_name[
+                        1] + '.png',
+                    format='png')
 
 
 def cdf_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day_list=None, save_plot=False):
@@ -378,8 +397,10 @@ def cdf_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day
                 fig.savefig(os.getcwd() + '/result/img/all-schemes-cdf-ac-pr-mlu-days-' + label_name[0] + '.png',
                             format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/all-schemes-cdf-pg-pr-mlu-days-' + label_name[0] + '-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/all-schemes-cdf-pg-pr-mlu-days-' + label_name[0] + '-' + label_name[
+                        1] + '.png',
+                    format='png')
 
     if scheme == 'delay':
         plt.show()
@@ -388,8 +409,10 @@ def cdf_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day
                 fig.savefig(os.getcwd() + '/result/img/all-schemes-cdf-ac-pr-delay-days-' + label_name[0] + '.png',
                             format='png')
             if config.method == 'pure_policy':
-                fig.savefig(os.getcwd() + '/result/img/all-schemes-cdf-pg-pr-delay-days-' + label_name[0] + '-' + label_name[1] + '.png',
-                            format='png')
+                fig.savefig(
+                    os.getcwd() + '/result/img/all-schemes-cdf-pg-pr-delay-days-' + label_name[0] + '-' + label_name[
+                        1] + '.png',
+                    format='png')
 
 
 def curve_plot(metric='mlu'):
@@ -451,24 +474,10 @@ def time_bar():
 if __name__ == '__main__':
     config = get_config(FLAGS) or FLAGS
 
-    # time_bar()
     # curve_plot(metric='mlu')
     # curve_plot(metric='delay')
 
     # file = 'result/csv/result-pure-policy-baseline-ckpt37.csv'
-    # file = 'result/csv/result-pure-policy-alpha-ckpt43.csv'
-    # file = 'result/csv/result-pure-policy-alpha+-ckpt36.csv'
-    # file = 'result/csv/result-pure-policy-alpha++-ckpt32-adam.csv'
-    # file = 'result/csv/result-pure-policy-alpha++-ckpt29.csv'
-
-    # file = 'result/csv/result-actor-critic-baseline-ckpt7.csv'
-    # file = 'result/csv/result-actor-critic-alpha-ckpt10.csv'
-    # file = 'result/csv/result-actor-critic-alpha+-ckpt13.csv'  # reward max
-    # file = 'result/csv/result-actor-critic-alpha+-ckpt48.csv' # value loss min
-    # file = 'result/csv/result-actor-critic-beta++ckpt27.csv'
-    # file = 'result/csv/result-actor-critic-beta++++ckpt9.csv'
-    # file = 'result/csv/result-actor-critic-delta-ckpt5.csv'
-
     # file = 'result/csv/result-pure-policy-alpha-lastK-centralized-sample.csv'
     # file = 'result/csv/result-pure-policy-alpha-lastK-sample.csv'
     # file = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK.csv'
@@ -486,22 +495,8 @@ if __name__ == '__main__':
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves15.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves20.csv'
 
-    # file1 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
+    file2 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
     # file2 = 'result/csv/result-pure-policy-baseline-ckpt93-maxMoves15.csv'
-
-    if False:
-        # CrFRO: Policy Gradient Based Critical Flow Rerouting Optimization #
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.25scaleK_maxMoves10.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.4scaleK.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.2scaleK.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK-maxMoves5.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.4scaleK-maxMoves15.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK-maxMoves10.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK-maxMoves15.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK-maxMoves20.csv'
-        # file2 = 'result/csv/result-pure-policy-alpha+-lastK-sample-0.5scaleK-maxMoves30.csv'
-        pass
 
     label_name = ['CeFRO-0.25k', 'CFR-RL', 'TopK Critical', 'TopK Cum-Centrality', 'TopK Centralized', 'TopK', 'ECMP']
     label_name[0] = label_name[0] + '-' + str(config.max_moves)
@@ -510,6 +505,8 @@ if __name__ == '__main__':
     cdf_plot = False
     day_list = [1, 2, 3, 5]
     data_analyzer(file1, file2, label_name=label_name, config=config, save_plot=save_plot)
+    pr_week_plot(file1, file2, scheme='mlu', label_name=label_name, config=config, save_plot=save_plot)
+    pr_week_plot(file1, file2, scheme='delay', label_name=label_name, config=config, save_plot=save_plot)
     pr_multi_plot(file1, file2, scheme='mlu', label_name=label_name, config=config, day_list=day_list,
                   save_plot=save_plot)
     pr_multi_plot(file1, file2, scheme='delay', label_name=label_name, config=config, day_list=day_list,

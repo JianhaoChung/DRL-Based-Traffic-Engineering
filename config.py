@@ -7,16 +7,12 @@ class NetworkConfig(object):
     learning_rate_decay_step = 5 * scale
     moving_average_decay = 0.9999
     entropy_weight = 0.1
-
     save_step = 10 * scale
     max_to_keep = 1000
-
     Conv2D_out = 128
     Dense_out = 128
-
     optimizer = 'RMSprop'
     # optimizer = 'Adam'
-
     logit_clipping = 10  # 10 or 0, = 0 means logit clipping is disabled
 
 
@@ -26,42 +22,37 @@ class Config(NetworkConfig):
     # method = 'actor_critic'
     method = 'pure_policy'
     model_type = 'Conv'
-
     topology_name = ['Abilene', 'Ebone', 'Sprintlink', 'Tiscali']
-    topology_file = topology_name[0]
+    topology_idx = 1
+    topology_file = topology_name[topology_idx]
     traffic_file = 'TM'
     test_traffic_file = 'TM2'
     tm_history = 1
-    # max_moves = 10  # percentage default
-    # max_moves = 20  # percentage
-    # max_moves = 15  # percentage
-    max_moves = 5  # percentage
+    baseline = 'avg'  # avg, best;  For pure policy
 
-    # For pure policy
-    baseline = 'avg'  # avg, best
-    # baseline = 'best'  # avg, best
+    # Schemes
+    suffix = ['baseline', 'alpha', 'alpha_update', 'alpha+']
+    scheme_idx = 0
+    scheme = model_name_suffix = suffix[scheme_idx]
 
-    partial_tm_zeroing = False  # False by default
-    # partial_tm_zeroing = True
+    max_moves_list = [5, 10, 15, 20, 30]
+    percentage_idx = 1
+    max_moves = max_moves_list[percentage_idx]  # 10 for percentage default
 
-    suffix = ['baseline', 'alpha',  'alpha_update', 'alpha+', 'alpha++', 'beta',
-              'beta+', 'beta++', 'beta+++', 'betas+++', 'beta++++',
-              'delta']
+    central_flow_sampling_ratio_list = [0.3, 0.5, 0.6, 0.75, 0.8, 1]
+    cfr_idx = 3
+    central_flow_sampling_ratio = central_flow_sampling_ratio_list[cfr_idx]
 
-    debug_suffix = ['debug', 'debug+', 'debug++', 'debug+++', 'debug++++']
+    # More Details of Schemes (Flow Hibird Sampling) #
+    scheme_list = [None, 'lastK_centralized_sample', 'lastK_sample']
+    scheme_idx = 1
+    scheme_explore = scheme_list[scheme_idx]
 
-    scheme = model_name_suffix = suffix[2]
-    # scheme = model_name_suffix =debug_suffix[-1]
-
-    # scheme_explore = None
-
-    scheme_explore = 'lastK_centralized_sample'
-    # scheme_explore = 'lastK_sample'
-
+    # Bottleneck Flows Configuration #
     central_links_nums = 10
-    cf_influence = 1    # 1 by default
+    cf_influence = 1  # 1 by default
     central_influence = 1  # 1 by deafault
-
+    partial_tm_zeroing = False  # False by default
     critical_links = 5  # 5 by default
 
 
@@ -70,5 +61,4 @@ def get_config(FLAGS):
     for k, v in FLAGS.__flags.items():
         if hasattr(config, k):
             setattr(config, k, v.value)
-
     return config

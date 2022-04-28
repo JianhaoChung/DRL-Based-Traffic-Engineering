@@ -11,10 +11,18 @@ class Network:
         self.input_dims = input_dims
         self.action_dim = action_dim
         self.max_moves = max_moves
-        self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
-                          + config.topology_file + '_' + config.traffic_file + '_'\
-                          + config.model_name_suffix + '_' + config.scheme_explore \
-                          + '_0.25scaleK' + '_maxMoves' + str(config.max_moves)
+        if config.scheme_explore is not None and config.scheme != 'baseline':
+            self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
+                              + config.topology_file + '_' + config.traffic_file + '_' \
+                              + config.model_name_suffix \
+                              + '_' + config.scheme_explore \
+                              + '_' + str(1 - config.central_flow_sampling_ratio) + 'scaleK' \
+                              + '_maxMoves' + str(config.max_moves)
+        else:
+            self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
+                              + config.topology_file + '_' + config.traffic_file + '_' \
+                              + config.model_name_suffix \
+                              + '_maxMoves' + str(config.max_moves)
 
         if config.method == 'actor_critic':
             self.create_actor_critic_model(config)
@@ -114,13 +122,15 @@ class Network:
         return value_loss, advantages
 
     def policy_loss_fn(self, logits, actions, advantages, entropy_weight=0.01, log_epsilon=1e-12):
-        actions = tf.reshape(actions, [-1, self.max_moves, self.action_dim])  # actions shape = [batch_size, max_moves, action_dim]
+        actions = tf.reshape(actions, [-1, self.max_moves,
+                                       self.action_dim])  # actions shape = [batch_size, max_moves, action_dim]
         policy = tf.nn.softmax(logits)  # policy shape = [batch_size, action_dim]
         assert policy.shape[0] == actions.shape[0] and advantages.shape[0] == actions.shape[0]
         entropy = tf.nn.softmax_cross_entropy_with_logits(labels=policy, logits=logits)  # entropy shape = [batch_size,]
         entropy = tf.expand_dims(entropy, -1)  # [batch_size, 1]
         policy = tf.expand_dims(policy, -1)  # policy shape = [batch_size, action_dim, 1]
-        policy_loss = tf.math.log(tf.maximum(tf.squeeze(tf.matmul(actions, policy)), log_epsilon))  # [batch_size, max_moves]
+        policy_loss = tf.math.log(
+            tf.maximum(tf.squeeze(tf.matmul(actions, policy)), log_epsilon))  # [batch_size, max_moves]
         policy_loss = tf.reduce_sum(policy_loss, 1, keepdims=True)  # [batch_size, 1]
         policy_loss = tf.multiply(policy_loss, tf.stop_gradient(-advantages))  # [batch_size, 1]
         policy_loss -= entropy_weight * entropy
@@ -182,8 +192,6 @@ class Network:
     def restore_ckpt(self, checkpoint=''):
         if checkpoint == '':
             checkpoint = self.manager.latest_checkpoint
-            print(checkpoint)
-            # exit(1)
         else:
             checkpoint = self.ckpt_dir + '/' + checkpoint
             print(checkpoint)
