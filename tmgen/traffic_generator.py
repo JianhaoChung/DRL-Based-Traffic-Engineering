@@ -80,7 +80,7 @@ if __name__ == '__main__':
 
     Topo_Idx = 0
     node_num = 23
-    num_epochs = 15
+    num_epochs = 30
     # print_detail = True
     print_detail = False
 
@@ -88,10 +88,10 @@ if __name__ == '__main__':
     exponential_traffic_data = Topology_Name[Topo_Idx] + '_ExponentialTraffic'
 
     uniform_tm_generator(traffic_data_path, uniform_traffic_data,
-                         node_num=node_num, num_epochs=num_epochs, low=30, high=500)
+                         node_num=node_num, num_epochs=num_epochs, low=400, high=600)  # 30， 500
 
     exponential_tm_generator(traffic_data_path, exponential_traffic_data,
-                             node_num=node_num, mean_traffic=100, num_epochs=num_epochs)
+                             node_num=node_num, mean_traffic=400, num_epochs=num_epochs)  # 100
 
     if print_detail:
         uniform_tm = traffic_matrix_loader(tm_save_path, uniform_traffic_data)
@@ -104,11 +104,11 @@ if __name__ == '__main__':
     uniform_csv_file = traffic_data_path + uniform_traffic_data + '.csv'
     exponential_csv_file = traffic_data_path + exponential_traffic_data + '.csv'
 
-    # uniform_tm_name = Topology_Name[Topo_Idx] + '_UniformTM'
-    # exponential_tm_name = Topology_Name[Topo_Idx] + '_ExponentialTM'
+    uniform_tm_name = Topology_Name[Topo_Idx] + '_UniformTM'
+    exponential_tm_name = Topology_Name[Topo_Idx] + '_ExponentialTM'
 
-    uniform_tm_name = Topology_Name[Topo_Idx] + '_UniformTM2'
-    exponential_tm_name = Topology_Name[Topo_Idx] + '_ExponentialTM2'
+    # uniform_tm_name = Topology_Name[Topo_Idx] + '_UniformTM2'
+    # exponential_tm_name = Topology_Name[Topo_Idx] + '_ExponentialTM2'
 
     tm_transpose_and_save(file=uniform_csv_file, save_path=tm_save_path+uniform_tm_name+'.csv')
     tm_transpose_and_save(file=exponential_csv_file, save_path=tm_save_path+exponential_tm_name+'.csv')
