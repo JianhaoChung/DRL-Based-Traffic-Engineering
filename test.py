@@ -13,7 +13,9 @@ from config import get_config
 from env import Environment
 from game import CFRRL_Game
 from model import Network
-ckpt_num = 46
+# ckpt_num = 88
+# ckpt_num = 71
+ckpt_num = 98
 FLAGS = flags.FLAGS
 # flags.DEFINE_string('ckpt', '', 'apply a specific checkpoint')
 flags.DEFINE_string('ckpt', 'ckpt-'+str(ckpt_num), 'apply a specific checkpoint')

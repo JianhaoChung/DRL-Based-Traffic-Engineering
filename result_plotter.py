@@ -177,8 +177,9 @@ def data_analyzer(file1, file2, label_name, config, save_plot=False):
                         format='png')
 
     pr_bar_plot_week_integrate(avg_mlu=avg_mlu, avg_delay=avg_delay, label_name=label_name)
-    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name, days=7)
-    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name, days=7)
+    pr_bar_plot_day('mlu', day_avg_mlu_save=day_avg_mlu_save, label_name=label_name, days=6)
+    pr_bar_plot_day('delay', day_avg_delay_save=day_avg_delay_save, label_name=label_name, days=6)
+    # exit(1)
 
 
 def pr_week_plot(file1, file2, scheme='mlu', label_name=None, config=None, save_plot=False):
@@ -194,8 +195,8 @@ def pr_week_plot(file1, file2, scheme='mlu', label_name=None, config=None, save_
         y_label = r'$\mathrm{{PR_\Omega}}$'
     Y1, Y2, Y3, Y4, Y5, Y6 = [df[idx[i]].to_numpy() for i in range(len(idx))]
     Y1_2 = df2[idx[0]].to_numpy()
-
-    max_idx = 288 * 7
+    days = 6
+    max_idx = 288 * days
     Y1, Y1_2, Y2, Y3, Y4, Y5, Y6 = Y1[:max_idx], Y1_2[:max_idx], Y2[:max_idx], Y3[:max_idx], Y4[:max_idx], Y5[
                                                                                                            :max_idx], Y6[
                                                                                                                       :max_idx]
@@ -212,8 +213,8 @@ def pr_week_plot(file1, file2, scheme='mlu', label_name=None, config=None, save_
     plt.plot(x, Y1, marker[0], markersize=markersize, linewidth=light_weigt, label=label_name[0])
     plt.plot(x, Y1_2, marker[1], markersize=markersize, linewidth=light_weigt, label=label_name[1])
     plt.plot(x, Y3, marker[2], markersize=markersize, linewidth=light_weigt, label=label_name[3])
-    plt.plot(x, Y5, marker[3], markersize=markersize, linewidth=light_weigt, label=label_name[5])
-    plt.plot(x, Y6, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[6])
+    plt.plot(x, Y5, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[5])
+    plt.plot(x, Y6, marker[-1], markersize=markersize, linewidth=light_weigt, label=label_name[6])
 
     # axes[i, j].plot(x, y2, marker[2], markersize=markersize, label=label_name[2])
     # axes[i, j].plot(x, y3, marker[3], markersize=markersize, label=label_name[3])
@@ -306,8 +307,8 @@ def pr_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day_
         axes[i, j].plot(x, y1, marker[0], markersize=markersize, linewidth=light_weigt, label=label_name[0])
         axes[i, j].plot(x, y1_2, marker[1], markersize=markersize, linewidth=light_weigt, label=label_name[1])
         axes[i, j].plot(x, y3, marker[2], markersize=markersize, linewidth=light_weigt, label=label_name[3])
-        axes[i, j].plot(x, y5, marker[3], markersize=markersize, linewidth=light_weigt, label=label_name[5])
-        axes[i, j].plot(x, y6, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[6])
+        axes[i, j].plot(x, y5, marker[4], markersize=markersize, linewidth=light_weigt, label=label_name[5])
+        axes[i, j].plot(x, y6, marker[-1], markersize=markersize, linewidth=light_weigt, label=label_name[6])
 
         # axes[i, j].plot(x, y2, marker[2], markersize=markersize, label=label_name[2])
         # axes[i, j].plot(x, y3, marker[3], markersize=markersize, label=label_name[3])
@@ -416,24 +417,24 @@ def cdf_multi_plot(file1, file2, scheme='mlu', label_name=None, config=None, day
 
 
 def curve_plot(metric='mlu'):
-    figsize = (10, 6)
+    figsize = (10, 4.5)
     fig = plt.figure(figsize=figsize)
     if metric == 'mlu':
         k1 = [0.93268, 0.99502, 0.99786, 0.99846]  # CrFRO MLU
         k2 = [0.93833, 0.99345, 0.99765, 0.99857]  # CrFRO MLU
         y_label = r'$\mathrm{{PR_U}}$'
-        title = r'The performance of load balancing ($\mathrm{{PR_U}}$) between scheme CrFRO and CrFRO'
+        title = r'Load balancing performance ratio ($\mathrm{{PR_U}}$) between smart rerouting scheme CeFRO and CrFRO'
         save_path = '/result/img/K-percent-MLU.png'
     if metric == 'delay':
         k1 = [0.82392, 0.842304, 0.827948, 0.81655]  # CrFRO Delay
         k2 = [0.81247, 0.84496, 0.82564, 0.82423]  # CrFRO Delay
         y_label = r'$\mathrm{{PR_\Omega}}$'
-        title = r'The performance of end-to-end delay ($\mathrm{{PR_\Omega}}$) between scheme CrFRO and CrFRO'
+        title = r'End-to-end delay perfromance ratio ($\mathrm{{PR_\Omega}}$) between smart rerouting scheme CeFRO and CrFRO'
         save_path = '/result/img/K-percent-dealy.png'
 
     x = [5, 10, 15, 20]  # 点的横坐标
     color = ['#be5629', '#f4cc66', '#056faf']
-    plt.plot(x, k1, 's-', color=color[0], label="CrFRO")
+    plt.plot(x, k1, 's-', color=color[0], label="CeFRO")
     plt.plot(x, k2, 'o-', color=color[2], label="CrFRO")
     plt.xlabel("Percentage of all OD flows to be re-route(%)")
     plt.xticks([5, 10, 15, 20])
@@ -458,22 +459,25 @@ def time_bar():
 
     X_axis = np.arange(len(X))
 
-    plt.bar(X_axis, CeFRO, bar_width, color=color_scheme[0], label='CrFRO')
+    plt.bar(X_axis, CeFRO, bar_width, color=color_scheme[0], label='CeFRO')
     plt.bar(X_axis + width, CrFRO, bar_width, color=color_scheme[1], label='CrFRO')
     plt.bar(X_axis + 2 * width, CFRRL, bar_width, color=color_scheme[-2], label='CFR-RL')
 
     plt.xticks([0.22, 1.22], X)
     plt.xlabel("Pencentage of all OD flows to be re-route(%)", fontsize=13)
     plt.ylabel("Time Used(mins)", fontsize=13)
-    plt.title("Bset convegence time of different smart re-rotue schemes with different re-routed OD flows  ",
-              fontsize=13)
+    plt.title(
+        "Best convegence time of different smart rerotuing schemes (CeFRO, CrFRO and CFR-RL)\n with different ratio of re-routed OD flows for Abilene Network",
+        fontsize=13)
+    # plt.title("Best convegence time of different smart re-rotue schemes with different re-routed OD flows  ",
+    #           fontsize=13)
     plt.legend()
     plt.show()
 
 
 if __name__ == '__main__':
     config = get_config(FLAGS) or FLAGS
-
+    # time_bar()
     # curve_plot(metric='mlu')
     # curve_plot(metric='delay')
 
@@ -485,26 +489,33 @@ if __name__ == '__main__':
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.5scaleK.csv'
 
     # file1 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
-    # file2 = 'result/csv/result-pure-policy-baseline-ckpt93-maxMoves15.csv'
+    # file2 = 'result/csv/result-pure-policy-baseline-maxMoves15.csv'
+    file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.2scaleK_maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.4scaleK_maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.5scaleK_maxMoves15.csv'
 
-    file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.4scaleK.csv'
+    # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.5scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.2scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves5.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves13.csv'
-    # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves20.csv'
 
     file2 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
-    # file2 = 'result/csv/result-pure-policy-baseline-ckpt93-maxMoves15.csv'
+    # file2 = 'result/csv/result-pure-policy-baseline-maxMoves15.csv'
 
-    label_name = ['CeFRO-0.25k', 'CFR-RL', 'TopK Critical', 'TopK Cum-Centrality', 'TopK Centralized', 'TopK', 'ECMP']
-    label_name[0] = label_name[0] + '-' + str(config.max_moves)
-    label_name[1] = label_name[1] + '-' + str(config.max_moves)
+    # label_name = ['CeFRO-0.5k', 'CFR-RL', 'TopK Critical', 'TopK Cum-Centrality', 'TopK Centralized', 'TopK', 'ECMP']
+    label_name = ['PKE-DRL', 'CFR-RL', 'TopK Critical', 'TopK Cum-Centrality', 'TopK Centralized', 'TopK', 'ECMP']
+    # label_name[0] = label_name[0] + '-' + str(config.max_moves)
+    # label_name[1] = label_name[1] + '-' + str(config.max_moves)
     save_plot = False
     cdf_plot = False
     day_list = [1, 2, 3, 5]
     data_analyzer(file1, file2, label_name=label_name, config=config, save_plot=save_plot)
+    exit(1)
     pr_week_plot(file1, file2, scheme='mlu', label_name=label_name, config=config, save_plot=save_plot)
     pr_week_plot(file1, file2, scheme='delay', label_name=label_name, config=config, save_plot=save_plot)
     pr_multi_plot(file1, file2, scheme='mlu', label_name=label_name, config=config, day_list=day_list,

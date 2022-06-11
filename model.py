@@ -12,17 +12,21 @@ class Network:
         self.action_dim = action_dim
         self.max_moves = max_moves
         if config.scheme_explore is not None and config.scheme != 'baseline':
+
             self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
                               + config.topology_file + '_' + config.traffic_file + '_' \
                               + config.model_name_suffix \
                               + '_' + config.scheme_explore \
-                              + '_' + str(1 - config.central_flow_sampling_ratio) + 'scaleK' \
-                              + '_maxMoves' + str(config.max_moves)
+                              + '_' + str(round(1 - config.central_flow_sampling_ratio, 1)) + 'scaleK' \
+                              + '_maxMoves' + str(config.max_moves) + '_final'
+            # + '_maxMoves' + str(config.max_moves)
+
         else:
             self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
                               + config.topology_file + '_' + config.traffic_file + '_' \
                               + config.model_name_suffix \
                               + '_maxMoves' + str(config.max_moves)
+            # + '_maxMoves' + str(config.max_moves) + '_new'
 
         if config.method == 'actor_critic':
             self.create_actor_critic_model(config)

@@ -48,8 +48,12 @@ class Game(object):
         self.pair_links = [(pr, e[0], e[1]) for pr in self.lp_pairs for e in self.lp_links]
 
         self.load_multiplier = {}
-        self.link_centrality_mapper, self.topk_centralized_links, _, _ = utility(config=config).scaling_action_space()
 
+        self.link_centrality_mapper, self.topk_centralized_links, _, _ = utility(config=config).scaling_action_space()
+        self.scheme = config.scheme
+        self.central_flow_sampling_ratio = config.central_flow_sampling_ratio
+        self.scheme_explore = config.scheme_explore
+        self.topology_file = config.topology_file
         if config.partial_tm_zeroing:
             _, _, self.zeroing_position, _ = utility(config=config).scaling_action_space()
             # print('TM zero position: {}'.format(self.zero_position))
@@ -633,6 +637,7 @@ class CFRRL_Game(Game):
             self.action_dim = env.num_pairs
 
         self.max_moves = int(self.action_dim * (config.max_moves / 100.))
+        self.max_moves_percent = config.max_moves
 
         assert self.max_moves <= self.action_dim, (self.max_moves, self.action_dim)
 
@@ -758,3 +763,27 @@ class CFRRL_Game(Game):
             line += str(self.load_multiplier[tm_idx]) + ', '
 
         print(line[:-2]) # remove space and dot included in last item in line
+
+        if self.topology_file == 'Abilene':
+
+            filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
+                       self.scheme + '_' + self.scheme_explore + '_' + str(round(1-self. central_flow_sampling_ratio,2)) + 'scaleK' \
+                       + '_' + 'maxMoves' + str(self.max_moves_percent) + '.csv'
+
+            # filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
+            #            self.scheme + '_' + 'maxMoves' + str(self.max_moves_percent) + '.csv'
+
+        if self.topology_file == 'Ebone':
+            if self.scheme == 'baseline':
+                filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Ebone_' + \
+                           self.scheme +'_maxMoves' + str(self.max_moves_percent) + '.csv'
+                # filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Ebone_' + \
+                #            self.scheme + '_' + str(self.max_moves) + '_new' + '.csv'
+
+            else:
+                filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Ebone_' + \
+                           self.scheme + '_' + self.scheme_explore + '_'+str(round(1-self. central_flow_sampling_ratio),2)+'scaleK' \
+                           + '_'+'maxMoves'+ str(self.max_moves_percent)  +  '.csv'
+
+        with open(filename, 'a+') as f:
+            f.writelines(line[:-2]+'\n')
