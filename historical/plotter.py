@@ -476,18 +476,18 @@ if __name__ == '__main__':
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.5scaleK.csv'
 
     # file1 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
-    # file2 = 'result/csv/result-pure-policy-baseline-ckpt93-maxMoves15.csv'
+    # file2 = 'result/csv/result-pure-policy-baseline-maxMoves15.csv'
 
     file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.4scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.2scaleK.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves5.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves13.csv'
-    # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves15.csv'
+    # file1 = 'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv'
     # file1 = 'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.25scaleK-maxMoves20.csv'
 
     # file1 = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
-    # file2 = 'result/csv/result-pure-policy-baseline-ckpt93-maxMoves15.csv'
+    # file2 = 'result/csv/result-pure-policy-baseline-maxMoves15.csv'
 
     if False:
         # CrFRO: Policy Gradient Based Critical Flow Rerouting Optimization #
