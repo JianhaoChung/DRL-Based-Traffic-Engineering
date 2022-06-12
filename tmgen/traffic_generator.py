@@ -73,14 +73,40 @@ def tm_transpose_and_save(file, save_path=None, num_nodes=23, diagonal_drop=Fals
     df.to_csv(save_path, sep=' ', header=False, index=False)
 
 
+def random_sample_TM(file1, file2):
+    df_e = pandas.read_csv(file1, header=None, index_col=False)
+    df_u = pandas.read_csv(file2, header=None, index_col=False)
+
+    train_e = df_e.sample(frac=0.7, replace=False)
+    test_e = df_e[~df_e.index.isin(train_e.index)]
+
+    train_u = df_u.sample(frac=0.7, replace=False)
+    test_u = df_u[~df_u.index.isin(train_u.index)]
+
+    train = train_e.append(train_u)
+    test = test_e.append(test_u)
+
+    train_saver = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/EboneTM.csv'
+    test_saver = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/EboneTM2.csv'
+
+    train.to_csv(train_saver,  header=False, index=False)
+    test.to_csv(test_saver,  header=False, index=False)
+
+
 if __name__ == '__main__':
+    EET = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/Ebone_ExponentialTM.csv'
+    EUT = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/Ebone_UniformTM.csv'
+    random_sample_TM(EET, EUT)
+
+    exit(1)
+
     traffic_data_path = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/tmgen_raw/'
     tm_save_path = '/home/scnu-go/ProjectsSCNU/CFR-RL/data/'
     Topology_Name = ['Ebone', 'Sprintlink', 'Tiscali']
 
     Topo_Idx = 0
     node_num = 23
-    num_epochs = 30
+    num_epochs = 50  # 30
     # print_detail = True
     print_detail = False
 
@@ -110,5 +136,5 @@ if __name__ == '__main__':
     # uniform_tm_name = Topology_Name[Topo_Idx] + '_UniformTM2'
     # exponential_tm_name = Topology_Name[Topo_Idx] + '_ExponentialTM2'
 
-    tm_transpose_and_save(file=uniform_csv_file, save_path=tm_save_path+uniform_tm_name+'.csv')
-    tm_transpose_and_save(file=exponential_csv_file, save_path=tm_save_path+exponential_tm_name+'.csv')
+    tm_transpose_and_save(file=uniform_csv_file, save_path=tm_save_path + uniform_tm_name + '.csv')
+    tm_transpose_and_save(file=exponential_csv_file, save_path=tm_save_path + exponential_tm_name + '.csv')
