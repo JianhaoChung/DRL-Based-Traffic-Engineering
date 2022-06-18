@@ -2,7 +2,6 @@ import pandas
 from tmgen.models import exp_tm
 from tmgen.models import random_gravity_tm
 from tmgen.models import uniform_tm
-
 from tmgen import TrafficMatrix
 
 
@@ -106,7 +105,7 @@ if __name__ == '__main__':
 
     Topo_Idx = 0
     node_num = 23
-    num_epochs = 50  # 30
+    num_epochs = 30  # 30
     # print_detail = True
     print_detail = False
 
@@ -114,10 +113,10 @@ if __name__ == '__main__':
     exponential_traffic_data = Topology_Name[Topo_Idx] + '_ExponentialTraffic'
 
     uniform_tm_generator(traffic_data_path, uniform_traffic_data,
-                         node_num=node_num, num_epochs=num_epochs, low=400, high=600)  # 30， 500
+                         node_num=node_num, num_epochs=num_epochs, low=30, high=500)  # CFR-RL: low=400, high=600
 
     exponential_tm_generator(traffic_data_path, exponential_traffic_data,
-                             node_num=node_num, mean_traffic=400, num_epochs=num_epochs)  # 100
+                             node_num=node_num, mean_traffic=100, num_epochs=num_epochs)  # CFR-RL:  mean_traffic=400
 
     if print_detail:
         uniform_tm = traffic_matrix_loader(tm_save_path, uniform_traffic_data)
