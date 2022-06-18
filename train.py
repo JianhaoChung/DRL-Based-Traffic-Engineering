@@ -1,8 +1,5 @@
 from __future__ import print_function
-
-import random
 import warnings
-
 warnings.filterwarnings("ignore")
 import numpy as np
 from tqdm import tqdm
@@ -182,7 +179,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             if config.scheme == 'alpha':
                 for a in actions:
                     if a not in action_space:
-                        if config.scheme_explore == 'lastK_sample':
+                        if config.scheme_suffix == 'lastK_sample':
                             lastK = game.get_lastK_flows(tm_idx)
 
                             cf_ratio = config.central_flow_sampling_ratio
@@ -192,7 +189,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
 
                             a_batch.append(a.item())
 
-                        if config.scheme_explore == 'lastK_centralized_sample':
+                        if config.scheme_suffix == 'lastK_centralized_sample':
                             lastK_centralized = game.get_lastK_central_flows(tm_idx, game.link_centrality_mapper,
                                                                              game.topk_centralized_links,
                                                                              game.max_moves,
@@ -207,7 +204,7 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
 
             if config.scheme == 'alpha_update':
 
-                if config.scheme_explore is None:
+                if config.scheme_suffix is None:
                     for a in actions:
                         a_batch.append(a)
                 else:
@@ -221,12 +218,6 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
                                                                              central_limit=False)
                             cf_ratio = config.central_flow_sampling_ratio
                             lastK_centralized = lastK_centralized[:int(game.max_moves * (1 - cf_ratio))]
-
-                            # lastK_centralized = lastK_centralized[:game.max_moves // 2] # 0.5 scaleK
-                            # lastK_centralized = lastK_centralized[:game.max_moves // 4]  # 0.25 scaleK
-                            # lastK_centralized = lastK_centralized[:game.max_moves // 5]  # 0.2 scaleK
-                            # lastK_centralized = lastK_centralized[:game.max_moves // 2.5]  # 0.4 scaleK
-
                             a = random_state.choice(lastK_centralized, 1)
                             a_batch.append(a.item())
                         else:
@@ -236,18 +227,13 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
             cf_space = game.get_critical_topK_flows_with_multiplier(config, tm_idx, critical_links=10, sampling=False)
             for a in actions:
                 if a not in cf_space:
-                    # a_batch.append(0)
-                    if config.scheme_explore == 'lastK_sample':
+                    if config.scheme_suffix == 'lastK_sample':
                         lastK = game.get_lastK_flows(tm_idx)
                         lastK = lastK[:game.max_moves // 2]  # 0.5 scaleK
-                        # lastK = lastK[:int(game.max_moves // 2.5)]  # 0.4 scaleK
-                        # lastK = lastK[:game.max_moves//4] # 0.25 scaleK
-                        # lastK = lastK[:game.max_moves//5]  # 0.2 scaleK
-
                         a = random_state.choice(lastK, 1)
                         a_batch.append(a.item())
 
-                    if config.scheme_explore == 'lastK_centralized_sample':
+                    if config.scheme_suffix == 'lastK_centralized_sample':
                         lastK_centralized = game.get_lastK_central_flows(tm_idx, game.link_centrality_mapper,
                                                                          game.topk_centralized_links, game.max_moves,
                                                                          central_limit=False)
@@ -277,14 +263,11 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
         run_iteration_idx += 1
 
         if run_iteration_idx >= run_iterations:
-            # Report experience to the coordinator                          
+            # Report experience to the coordinator
             if config.method == 'actor_critic':
                 experience_queue.put([s_batch, a_batch, r_batch])
             elif config.method == 'pure_policy':
                 experience_queue.put([s_batch, a_batch, r_batch, ad_batch])
-
-            # print('\n report: {} \n{}\n{}\n{}'.format(agent_id, s_batch, a_batch, r_batch))
-            # print(agent_id,len(s_batch), len(a_batch), len(r_batch), idx, num_tms)
 
             # synchronize the network parameters from the coordinator
             model_weights = model_weights_queue.get()
@@ -304,22 +287,17 @@ def agent(agent_id, config, game, tm_subset, model_weights_queue, experience_que
 
 
 def main(_):
-    # cpu only
     tf.config.experimental.set_visible_devices([], 'GPU')
     tf.get_logger().setLevel('INFO')
-    # tf.debugging.set_log_device_placement(True)
-
     config = get_config(FLAGS) or FLAGS
     env = Environment(config, is_training=True)
     game = CFRRL_Game(config, env)
-    model_weights_queues = []  # fixed Q target network?
-    experience_queues = []  # experience pool
+    model_weights_queues = []
+    experience_queues = []
 
     if FLAGS.central_flow_included:
         _, centralized_links, _, action_space = utility(config=config). \
             scaling_action_space(central_influence=config.central_influence, print_=False)
-        # print(centralized_links, action_space, len(action_space))
-
         cf_pair_idx_to_sd = [env.pair_idx_to_sd[p] for p in action_space]
 
     if FLAGS.num_agents == 0 or FLAGS.num_agents >= mp.cpu_count():
@@ -338,12 +316,9 @@ def main(_):
 
     agents = []
     for i in range(FLAGS.num_agents):
-        # agents.append(mp.Process(target=agent, args=(i, config, game, tm_subsets[i], model_weights_queues[i], experience_queues[i])))
-
         agents.append(mp.Process(target=agent,
                                  args=(i, config, game, tm_subsets[i], model_weights_queues[i], experience_queues[i],
                                        action_space, centralized_links, cf_pair_idx_to_sd)))
-
     for i in range(FLAGS.num_agents):
         agents[i].start()
 

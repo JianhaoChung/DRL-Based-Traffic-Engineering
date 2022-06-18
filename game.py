@@ -52,8 +52,9 @@ class Game(object):
         self.link_centrality_mapper, self.topk_centralized_links, _, _ = utility(config=config).scaling_action_space()
         self.scheme = config.scheme
         self.central_flow_sampling_ratio = config.central_flow_sampling_ratio
-        self.scheme_explore = config.scheme_explore
+        self.scheme_suffix = config.scheme_suffix
         self.topology_file = config.topology_file
+        self.round = config.round
         if config.partial_tm_zeroing:
             _, _, self.zeroing_position, _ = utility(config=config).scaling_action_space()
             # print('TM zero position: {}'.format(self.zero_position))
@@ -82,9 +83,6 @@ class Game(object):
     def get_topK_flows(self, tm_idx, pairs):
         tm = self.traffic_matrices[tm_idx]
         f = {}
-
-        # pairs = [i for i in range(self.num_pairs)]
-
         for p in pairs:
             s, d = self.pair_idx_to_sd[p]
             f[p] = tm[s][d]
@@ -108,7 +106,6 @@ class Game(object):
             f[p] = tm[s][d]
 
         sorted_f = sorted(f.items(), key=lambda kv: (kv[1], kv[0]))
-        # print(sorted_f)
         cf = []
 
         for i in range(self.max_moves):
@@ -435,13 +432,6 @@ class Game(object):
 
         model += r + OBJ_EPSILON * lpSum([link_load[ei] for ei in self.links])  # formula (4a) constraint
 
-        # todo
-
-        # optimal_link_loads *= self.load_multiplier[tm_idx]
-        # delay = sum(optimal_link_loads / (self.link_capacities - optimal_link_loads))
-        # weight = 0.8
-        # model += r + OBJ_EPSILON * ((1-weight)*lpSum(1/delay) + weight*lpSum([link_load[ei] for ei in self.links]))
-
         model.solve(solver=GLPK(msg=False))
         assert LpStatus[model.status] == 'Optimal'
 
@@ -469,7 +459,7 @@ class Game(object):
         for i in range(self.num_pairs):
             s, d = cf_pair_idx_to_sd[i]
             if i not in critical_pairs:
-                # background link load calculation
+                # background link load
                 self.ecmp_next_hop_distribution(background_link_loads, tm[s][d], s, d)
             else:
                 demands[i] = tm[s][d]
@@ -562,7 +552,7 @@ class Game(object):
 
         f = LpVariable.dicts(name="link_cost", indexs=self.links)
 
-        # formula (4c) constraint ?
+        # formula (4c) constraint
         for pr in self.lp_pairs:
             model += (
                 lpSum([ratio[pr, e[0], e[1]] for e in self.lp_links if e[1] == self.pair_idx_to_sd[pr][0]]) - lpSum(
@@ -765,10 +755,16 @@ class CFRRL_Game(Game):
         print(line[:-2]) # remove space and dot included in last item in line
 
         if self.topology_file == 'Abilene':
+            if self.round is None:
 
-            filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
-                       self.scheme + '_' + self.scheme_explore + '_' + str(round(1-self. central_flow_sampling_ratio,2)) + 'scaleK' \
+                filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
+                       self.scheme + '_' + self.scheme_suffix + '_' + str(1-self. central_flow_sampling_ratio) + 'scaleK' \
                        + '_' + 'maxMoves' + str(self.max_moves_percent) + '.csv'
+            else:
+                filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
+                           self.scheme + '_' + self.scheme_suffix + '_' + str(1 - self.central_flow_sampling_ratio) + 'scaleK' \
+                           + '_' + 'maxMoves' + str(self.max_moves_percent) + '_'+str(self.round)+'.csv'
+
 
             # filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Abilene_' + \
             #            self.scheme + '_' + 'maxMoves' + str(self.max_moves_percent) + '.csv'
@@ -782,7 +778,7 @@ class CFRRL_Game(Game):
 
             else:
                 filename = '/home/scnu-go/ProjectsSCNU/CFR-RL/result/csv/result_pure_policy_conv_Ebone_' + \
-                           self.scheme + '_' + self.scheme_explore + '_'+str(round(1-self. central_flow_sampling_ratio),2)+'scaleK' \
+                           self.scheme + '_' + self.scheme_suffix + '_'+str(1-self. central_flow_sampling_ratio)+'scaleK' \
                            + '_'+'maxMoves'+ str(self.max_moves_percent)  +  '.csv'
 
         with open(filename, 'a+') as f:

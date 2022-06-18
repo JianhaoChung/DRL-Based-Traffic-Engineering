@@ -11,22 +11,24 @@ class Network:
         self.input_dims = input_dims
         self.action_dim = action_dim
         self.max_moves = max_moves
-        if config.scheme_explore is not None and config.scheme != 'baseline':
+        if config.round is not None:
+            self.round_suffix = '_round{}'.format(config.round)
+        else:
+            self.round_suffix = None
+        if config.scheme_suffix is not None and config.scheme != 'baseline':
 
             self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
                               + config.topology_file + '_' + config.traffic_file + '_' \
-                              + config.model_name_suffix \
-                              + '_' + config.scheme_explore \
-                              + '_' + str(round(1 - config.central_flow_sampling_ratio, 1)) + 'scaleK' \
-                              + '_maxMoves' + str(config.max_moves) + '_final'
-            # + '_maxMoves' + str(config.max_moves)
+                              + config.scheme \
+                              + '_' + config.scheme_suffix \
+                              + '_' + str(1 - config.central_flow_sampling_ratio) + 'scaleK' \
+                              + '_maxMoves' + str(config.max_moves) + self.round_suffix
 
         else:
             self.model_name = config.version + '-' + config.project_name + '_' + config.method + '_' + config.model_type + '_' \
                               + config.topology_file + '_' + config.traffic_file + '_' \
-                              + config.model_name_suffix \
-                              + '_maxMoves' + str(config.max_moves)
-            # + '_maxMoves' + str(config.max_moves) + '_new'
+                              + config.scheme \
+                              + '_maxMoves' + str(config.max_moves) + self.round_suffix
 
         if config.method == 'actor_critic':
             self.create_actor_critic_model(config)

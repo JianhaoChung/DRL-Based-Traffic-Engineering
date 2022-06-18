@@ -13,13 +13,11 @@ from config import get_config
 from env import Environment
 from game import CFRRL_Game
 from model import Network
-# ckpt_num = 88
-# ckpt_num = 71
-ckpt_num = 98
+
+ckpt_num = 51  # select a specific checkpoint(DRLmodel) to test
 FLAGS = flags.FLAGS
-# flags.DEFINE_string('ckpt', '', 'apply a specific checkpoint')
+
 flags.DEFINE_string('ckpt', 'ckpt-'+str(ckpt_num), 'apply a specific checkpoint')
-# flags.DEFINE_boolean('eval_delay', False, 'evaluate delay or not')
 flags.DEFINE_boolean('eval_delay', True, 'evaluate delay or not')
 flags.DEFINE_boolean('central_included', True, 'central link included or not')
 
@@ -39,7 +37,6 @@ def sim(config, network, game):
 
 
 def main(_):
-    # Using cpu for testing
     tf.config.experimental.set_visible_devices([], 'GPU')
     tf.get_logger().setLevel('INFO')
     config = get_config(FLAGS) or FLAGS

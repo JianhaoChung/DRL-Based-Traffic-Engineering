@@ -276,25 +276,30 @@ def pr_multi_plot(file1, file2, scheme='mlu', label_name=None, day_list=None, sa
 def abilene_data(model=None, max_moves=10, pke_drl_idx=None):
     if model == 'PKE-DRL':
         if max_moves == 10:
-            pke_drl_result = ['result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.2scaleK.csv',
-                              'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.4scaleK.csv',
-                              'result/csv/result-pure-policy-alpha-update-lastK-centralized-sample-0.5scaleK.csv'
+            pke_drl_result = ['result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.2scaleK_maxMoves10.csv',
+                              'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25_scaleK_maxMoves10.csv',
+                              'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.4scaleK_maxMoves10.csv',
+                              'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.5scaleK_maxMoves10.csv'
                               ]
         if max_moves == 15:
             pke_drl_result = ['result/csv/result_pure_policy_conv_Abilene_alpha_update_maxMoves15.csv',
-                              'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv',
                               'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.2scaleK_maxMoves15.csv',
+                              'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv',
                               'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.4scaleK_maxMoves15.csv',
                               'result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.5scaleK_maxMoves15.csv'
                               ]
+        if max_moves == 20:
+            pke_drl_result = ['result/csv/result_pure_policy_conv_Abilene_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves20.csv']
 
         return pke_drl_result[pke_drl_idx]
 
     if model == 'CFR-RL':
         if max_moves == 10:
-            cfr_rl_result = 'result/csv/result-pure-policy-baseline-ckpt74.csv'
+            cfr_rl_result = 'result/csv/result_pure_policy_conv_Abilene_baseline_maxMoves10_ckpt74.csv'
         if max_moves == 15:
-            cfr_rl_result = 'result/csv/result-pure-policy-baseline-maxMoves15.csv'
+            cfr_rl_result = 'result/csv/result_pure_policy_conv_Abilene_baseline_maxMoves15.csv'
+        if max_moves == 20:
+            cfr_rl_result = 'result/csv/result_pure_policy_conv_Abilene_baseline_maxMoves20.csv'
 
         return cfr_rl_result
 
@@ -305,6 +310,8 @@ def ebone_data(model=None, max_moves=10):
             pke_drl_result = 'result/csv/result_pure_policy_conv_Ebone_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves10.csv'
         if max_moves == 15:
             pke_drl_result = 'result/csv/result_pure_policy_conv_Ebone_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves15.csv'
+        if max_moves == 20:
+            pke_drl_result = 'result/csv/result_pure_policy_conv_Ebone_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves20.csv'
         return pke_drl_result
 
     if model == 'CFR-RL':
@@ -312,7 +319,8 @@ def ebone_data(model=None, max_moves=10):
             cfr_rl_result = 'result/csv/result_pure_policy_conv_Ebone_baseline_maxMoves10.csv'
         if max_moves == 15:
             cfr_rl_result = 'result/csv/result_pure_policy_conv_Ebone_baseline_maxMoves15.csv'
-
+        if max_moves == 20:
+            cfr_rl_result = 'result/csv/result_pure_policy_conv_Ebone_baseline_maxMoves20.csv'
         return cfr_rl_result
 
     # file1 = 'result/csv/result_pure_policy_conv_Ebone_alpha_update_lastK_centralized_sample_0.25scaleK_maxMoves10_new.csv'
@@ -320,6 +328,7 @@ def ebone_data(model=None, max_moves=10):
 
 
 def pr_plot_abilene(label_name=None, save_plot=False):
+
     avg_mlu_p10 = [0.9950249904829205, 0.9942723496690274, 0.9506918908566959, 0.9592661821993126, 0.957341811085134,
                    0.8784579441315484, 0.6774799910966899]
     avg_delay_p10 = [0.8423043413059632, 0.8446440719681698, 0.7978797445196646, 0.8060997609634855, 0.8274249675268561,
@@ -330,6 +339,9 @@ def pr_plot_abilene(label_name=None, save_plot=False):
     avg_delay_p15 = [0.8279481036673891, 0.8296127198139992, 0.7916017487913771, 0.793938386350183, 0.8006170389820378,
                      0.7589892753158913, 0.5043758020673198]
 
+    avg_mlu_p20 = [0.9984664571247994, 0.9982207719037961, 0.9864062285741213, 0.9774525642335924, 0.9693157419437542, 0.9684277578433246, 0.6774799910966899]
+    avg_delay_p20 = [0.8165517056168974, 0.8154938744984617, 0.7856863590303923, 0.7868262529474731, 0.8177119350994488, 0.7554193272919896, 0.5043758020673198]
+
     fig_size = (18, 6.5)
     fig, axes = plt.subplots(1, 2, figsize=fig_size, sharey=False, gridspec_kw={'width_ratios': [1, 1]})
     plt.rcParams['font.family'] = 'sans-serif'
@@ -339,6 +351,9 @@ def pr_plot_abilene(label_name=None, save_plot=False):
 
     avg_mlu_p15 = [avg_mlu_p15[0], avg_mlu_p15[1], avg_mlu_p15[3], avg_mlu_p15[-2], avg_mlu_p15[-1]]
     avg_delay_p15 = [avg_delay_p15[0], avg_delay_p15[1], avg_delay_p15[3], avg_delay_p15[-2], avg_delay_p15[-1]]
+
+    avg_mlu_p20 = [avg_mlu_p20[0], avg_mlu_p20[1], avg_mlu_p20[3], avg_mlu_p20[-2], avg_mlu_p20[-1]]
+    avg_delay_p20 = [avg_delay_p20[0], avg_delay_p20[1], avg_delay_p20[3], avg_delay_p20[-2], avg_delay_p15[-1]]
 
     label_name = [label_name[0], label_name[1], label_name[3], label_name[-2], label_name[-1]]
 
@@ -351,13 +366,13 @@ def pr_plot_abilene(label_name=None, save_plot=False):
 
     axes[0].bar(X_axis, avg_mlu_p10, bar_width, color=color_scheme[0], label='10%')
     axes[0].bar(X_axis + width, avg_mlu_p15, bar_width, color=color_scheme[1], label='15%')
-    # axes[0].bar(X_axis + 2 * width, avg_mlu_p20, bar_width, color=color_scheme[2], label='20%')
+    axes[0].bar(X_axis + 2 * width, avg_mlu_p20, bar_width, color=color_scheme[5], label='20%')
     axes[0].set_xticks(np.arange(5) + 0.15)
     axes[0].set_xticklabels(label_name)
 
     axes[1].bar(X_axis, avg_delay_p10, bar_width, color=color_scheme[0], label='10%')
     axes[1].bar(X_axis + width, avg_delay_p15, bar_width, color=color_scheme[1], label='15%')
-    # axes[1].bar(X_axis + 2 * width, avg_delay_p20, bar_width, color=color_scheme[2], label='20%')
+    axes[1].bar(X_axis + 2 * width, avg_delay_p20, bar_width, color=color_scheme[5], label='20%')
     axes[1].set_xticks(np.arange(5) + 0.15)
     axes[1].set_xticklabels(label_name)
 
@@ -388,6 +403,9 @@ def pr_plot_ebone(label_name=None, save_plot=False):
     avg_delay_p15 = [0.874655332730042, 0.8732619157475815, 0.8306033674725836, 0.6955506909239392, 0.7329244588080907,
                      0.7725107858578288, 0.6018860610692244]
 
+    avg_mlu_p20 = [0.9999452722452786, 1.0000000099075164, 0.9552565264542654, 0.705269041330125, 0.7396612036937912, 0.8312208720255662, 0.5514805420906973]
+    avg_delay_p20 = [0.8731026782772542, 0.8705796773749591, 0.8206036847463571, 0.7116194450211883, 0.749580092653247, 0.7714145445126336, 0.6018860610692244]
+
     fig_size = (18, 6.5)
     fig, axes = plt.subplots(1, 2, figsize=fig_size, sharey=False, gridspec_kw={'width_ratios': [1, 1]})
     plt.rcParams['font.family'] = 'sans-serif'
@@ -397,6 +415,9 @@ def pr_plot_ebone(label_name=None, save_plot=False):
 
     avg_mlu_p15 = [avg_mlu_p15[0], avg_mlu_p15[1], avg_mlu_p15[3], avg_mlu_p15[-2], avg_mlu_p15[-1]]
     avg_delay_p15 = [avg_delay_p15[0], avg_delay_p15[1], avg_delay_p15[3], avg_delay_p15[-2], avg_delay_p15[-1]]
+
+    avg_mlu_p20 = [avg_mlu_p20[0], avg_mlu_p20[1], avg_mlu_p20[3], avg_mlu_p20[-2], avg_mlu_p20[-1]]
+    avg_delay_p20 = [avg_delay_p20[0], avg_delay_p20[1], avg_delay_p20[3], avg_delay_p20[-2], avg_delay_p20[-1]]
 
     label_name = [label_name[0], label_name[1], label_name[3], label_name[-2], label_name[-1]]
 
@@ -409,13 +430,13 @@ def pr_plot_ebone(label_name=None, save_plot=False):
 
     axes[0].bar(X_axis, avg_mlu_p10, bar_width, color=color_scheme[0], label='10%')
     axes[0].bar(X_axis + width, avg_mlu_p15, bar_width, color=color_scheme[1], label='15%')
-    # axes[0].bar(X_axis + 2 * width, avg_mlu_p20, bar_width, color=color_scheme[2], label='20%')
+    axes[0].bar(X_axis + 2*width, avg_mlu_p20, bar_width, color=color_scheme[5], label='20%')
     axes[0].set_xticks(np.arange(5) + 0.15)
     axes[0].set_xticklabels(label_name)
 
     axes[1].bar(X_axis, avg_delay_p10, bar_width, color=color_scheme[0], label='10%')
     axes[1].bar(X_axis + width, avg_delay_p15, bar_width, color=color_scheme[1], label='15%')
-    # axes[1].bar(X_axis + 2 * width, avg_delay_p20, bar_width, color=color_scheme[2], label='20%')
+    axes[1].bar(X_axis + 2 * width, avg_delay_p20, bar_width, color=color_scheme[5], label='20%')
     axes[1].set_xticks(np.arange(5) + 0.15)
     axes[1].set_xticklabels(label_name)
 
@@ -498,7 +519,7 @@ def convergence_time_plot(topo='Abilene', save_plot=False):
         PKEDRL = [380, 305, 554]
         CFRRL = [388, 600, 761]
     if topo == 'Ebone':
-        PKEDRL = [2118, 0, 4500]
+        PKEDRL = [2118, 4230, 4500]
         CFRRL = [2804, 4569, 5790]
 
     X_axis = np.arange(len(X))
